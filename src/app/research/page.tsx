@@ -370,7 +370,7 @@ export default function ResearchPage() {
             <span style={{ color: "rgba(255,255,255,0.75)" }}>model interpretability</span>.
             I am particularly interested in understanding what small language models learn about language structure
             across typologically different languages — and whether that learning is genuinely cross-lingual
-            or a surface-level statistical artefact. Lately that's extended to a more adversarial question:
+            or a surface-level statistical artefact. Lately that&apos;s extended to a more adversarial question:
             whether the internal signals we use to <em style={{ fontStyle: "normal", color: "rgba(255,255,255,0.75)" }}>evaluate</em>{" "}
             models — like linear probes for benchmark contamination — hold up under the same scrutiny.
           </p>
