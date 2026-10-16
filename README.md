@@ -5,22 +5,22 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss&logoColor=white)
 
-Personal hub for [braunf.com](https://braunf.com): a Pokémon-style project selector that links out to my projects, research, music and contact details.
+Personal hub for [braunf.com](https://braunf.com): a Pokémon-style start menu that links out to my projects, research, music and contact details.
 
 ## Pages
 
 | Route | Description |
 | --- | --- |
-| `/` | Project selector hub with WebGL aurora background |
-| `/portfolio` | Selected projects |
-| `/research` | Papers and research work |
-| `/pokedex` | Pokédex-style overview of skills and achievements |
-| `/terminal` | Interactive terminal |
-| `/music` | Chiptune beats and a pocket-operator style sequencer |
-| `/now` | What I'm currently working on |
-| `/contact` | Contact and social links |
+| `/` | Pokémon-style start menu hub with WebGL aurora background and links to projects |
+| `/portfolio` | Experience, education, skills, languages and GitHub activity |
+| `/research` | Papers and research in NLP, cross-lingual alignment and LLM interpretability |
+| `/pokedex` | Searchable, filterable Pokédex of achievements (hackathons, awards, education, certifications) |
+| `/terminal` | Interactive terminal with commands |
+| `/music` | Loops made on a Teenage Engineering PO-33 K.O., with a player |
+| `/now` | Current focus areas plus live GitHub and Hugging Face activity |
+| `/contact` | Email and project links |
 
-The home page also shows live GitHub and Hugging Face activity, fetched client-side from their public APIs.
+The portfolio and now pages show live GitHub (and, on `/now`, Hugging Face) activity, fetched client-side from public APIs.
 
 ## Tech Stack
 
@@ -43,6 +43,7 @@ npm run dev     # http://localhost:3000
 | --- | --- |
 | `npm run dev` | Start the dev server |
 | `npm run build` | Build the static site into `out/` |
+| `npm start` | Serve a production build (`npm run build` first) |
 | `npm run lint` | Run ESLint |
 
 ## Project Structure
