@@ -10,7 +10,6 @@ import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 const GREEN = "#8fd94a";
 const GREEN_DIM = "#3f5a2c";
 const INK = "#0a0b09";
-const PANEL = "#14160f";
 const MONO = 'ui-monospace, "SF Mono", "Roboto Mono", Menlo, Consolas, monospace';
 
 // 64 peak buckets -> 16, averaged. Used for the pad sparkline and the live
@@ -71,30 +70,26 @@ export default function BeatsPage() {
     audio.loop = loop;
   }, [loop]);
 
-  const tick = useCallback(() => {
-    const audio = audioRef.current;
-    if (audio && audio.duration) {
-      const frac = audio.currentTime / audio.duration;
-      const bucket = Math.floor(frac * 16);
-      if (bucket !== lastBucketRef.current) {
-        lastBucketRef.current = bucket;
-        setProgress(frac);
-        setDisplayTime(audio.currentTime);
-      }
-    }
-    rafRef.current = requestAnimationFrame(tick);
-  }, []);
-
   useEffect(() => {
-    if (isPlaying) {
+    if (!isPlaying) return;
+    const tick = () => {
+      const audio = audioRef.current;
+      if (audio && audio.duration) {
+        const frac = audio.currentTime / audio.duration;
+        const bucket = Math.floor(frac * 16);
+        if (bucket !== lastBucketRef.current) {
+          lastBucketRef.current = bucket;
+          setProgress(frac);
+          setDisplayTime(audio.currentTime);
+        }
+      }
       rafRef.current = requestAnimationFrame(tick);
-    } else if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current);
-    }
+    };
+    rafRef.current = requestAnimationFrame(tick);
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
-  }, [isPlaying, tick]);
+  }, [isPlaying]);
 
   const loadBeat = useCallback((beat: Beat, autoplay: boolean) => {
     setSelected(beat);
