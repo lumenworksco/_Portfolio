@@ -13,6 +13,24 @@ import { CHAPTERS, DEFAULT_PALETTE, type LifeItem, type Palette } from "@/data/l
 const GRAIN =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
+// Where else to go from the lone orb. Same destinations as the home menu; the hidden
+// terminal and the gated CV page are left out on purpose.
+const SITE_LINKS = [
+  { label: "Research", href: "/research" },
+  { label: "Pokédex", href: "/pokedex" },
+  { label: "Beats", href: "/music" },
+  { label: "Now", href: "/now" },
+  { label: "Contact", href: "/contact" },
+];
+const ELSEWHERE_LINKS = [
+  { label: "Personal Projects", href: "https://lumen.braunf.com" },
+  { label: "CalmCampus", href: "https://cc.braunf.com" },
+  { label: "DataCamp", href: "https://data.braunf.com" },
+  { label: "IoT Lab", href: "https://iot.braunf.com" },
+  { label: "Nihongo", href: "https://nihongo.braunf.com" },
+  { label: "Go", href: "https://go.braunf.com" },
+];
+
 const rgb = (v: number[]) => `rgb(${v.map((x) => Math.round(x * 255)).join(" ")})`;
 
 function ItemLink({ item }: { item: LifeItem }) {
@@ -191,6 +209,36 @@ export default function AgentPage() {
         )}
       </AnimatePresence>
 
+      {/* Other pages, shown while the orb is alone */}
+      <AnimatePresence>
+        {!open && (
+          <motion.nav
+            aria-label="Other pages"
+            className="life-links"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
+            <div className="life-links-row">
+              {SITE_LINKS.map((l) => (
+                <Link key={l.href} href={l.href} className="life-pill">
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+            <div className="life-links-row">
+              {ELSEWHERE_LINKS.map((l) => (
+                <a key={l.href} href={l.href} className="life-pill life-pill-out">
+                  {l.label}
+                  <ArrowUpRight size={11} aria-hidden="true" />
+                </a>
+              ))}
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+
       {/* Film grain: also hides any gradient banding */}
       <div aria-hidden="true" className="life-grain pointer-events-none absolute inset-0" style={{ backgroundImage: GRAIN }} />
 
@@ -227,7 +275,7 @@ export default function AgentPage() {
         .life-chrome:focus-visible { outline:2px solid #a5b4fc; outline-offset:6px; border-radius:6px; }
         .life-home { top:22px; left:24px; }
         .life-close { top:22px; right:24px; }
-        .life-hint { bottom:34px; left:50%; transform:translateX(-50%); font-size:10px; letter-spacing:0.32em; cursor:default; pointer-events:none; opacity:0; animation: life-hint 3.6s ease-in-out 1.4s infinite; }
+        .life-hint { bottom:112px; left:50%; transform:translateX(-50%); font-size:10px; letter-spacing:0.32em; cursor:default; pointer-events:none; opacity:0; animation: life-hint 3.6s ease-in-out 1.4s infinite; }
         @keyframes life-hint { 0%,100% { opacity:0.15; } 50% { opacity:0.85; } }
 
         .life-panel { position:absolute; z-index:4; right:max(4vw, 24px); top:0; bottom:0; width:min(540px, 42vw); display:flex; flex-direction:column; justify-content:center; pointer-events:none; font-family: var(--font-inter), system-ui, sans-serif; color:#e0e7ff; outline:none; }
@@ -244,6 +292,13 @@ export default function AgentPage() {
         .life-card p { font-size:13.5px; line-height:1.6; color: rgba(224,231,255,0.7); }
         .life-link { display:inline-flex; align-items:center; gap:4px; margin-top:10px; font-size:12px; letter-spacing:0.04em; color:#c7d2fe; text-decoration:none; border-bottom:1px solid rgba(199,210,254,0.3); padding-bottom:1px; transition: color .2s ease, border-color .2s ease; }
         .life-link:hover, .life-link:focus-visible { color:#fff; border-color:#fff; outline:none; }
+
+        .life-links { position:absolute; z-index:5; left:0; right:0; bottom:20px; display:flex; flex-direction:column; align-items:center; gap:8px; padding:0 16px; }
+        .life-links-row { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; }
+        .life-pill { display:inline-flex; align-items:center; gap:4px; font-family: var(--font-inter), system-ui, sans-serif; font-size:11.5px; letter-spacing:0.06em; padding:8px 14px; border-radius:999px; border:1px solid rgba(199,210,254,0.18); background: rgba(8,12,28,0.5); color: rgba(224,231,255,0.8); text-decoration:none; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: color .25s ease, border-color .25s ease, background .25s ease, transform .25s ease; }
+        .life-pill-out { padding:6px 12px; font-size:10.5px; color: rgba(199,210,254,0.55); border-color: rgba(199,210,254,0.1); background: rgba(8,12,28,0.35); }
+        .life-pill:hover { color:#fff; border-color: rgba(199,210,254,0.5); background: rgba(40,50,100,0.45); transform: translateY(-1px); }
+        .life-pill:focus-visible { outline:2px solid #a5b4fc; outline-offset:3px; }
 
         .life-nav { position:absolute; z-index:5; left:0; right:0; bottom:22px; display:flex; justify-content:center; gap:6px; padding:0 16px; overflow-x:auto; scrollbar-width:none; }
         .life-nav::-webkit-scrollbar { display:none; }
