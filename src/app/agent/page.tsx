@@ -28,8 +28,8 @@ const ELSEWHERE_LINKS = [
   { label: "Go", href: "https://go.braunf.com" },
 ];
 
-// Two Pokémon guard the two things that matter most: the personal projects and the research.
-// Hovering one tints the orb and the light behind it with that guide's palette.
+// Two trading cards guard the two things that matter most: the personal projects and the research.
+// Hovering one tints the orb and the light behind it with that card's palette.
 const paletteOf = (id: string) => CHAPTERS.find((c) => c.id === id)!.palette;
 const GUIDES = [
   {
@@ -38,10 +38,8 @@ const GUIDES = [
     title: "Personal Projects",
     caption: "Apps, tools and AI systems",
     href: "https://projects.braunf.com",
-    img: "/pokemon/eevee.webp",
-    alt: "Eevee",
-    width: 344,
-    height: 404,
+    img: "/cards/eevee.webp",
+    alt: "Eevee ex, Special Art Rare",
     palette: paletteOf("work"),
   },
   {
@@ -50,13 +48,31 @@ const GUIDES = [
     title: "Research",
     caption: "Papers and ESP32 hardware",
     href: "https://research.braunf.com",
-    img: "/pokemon/bronzor.webp",
-    alt: "Bronzor",
-    width: 376,
-    height: 454,
-    palette: paletteOf("research"),
+    img: "/cards/reuniclus.webp",
+    alt: "Reuniclus, Art Rare",
+    palette: paletteOf("school"),
   },
 ] as const;
+
+// Tilt the card toward the pointer and slide the foil and glare with it.
+function tiltCard(e: React.PointerEvent<HTMLElement>) {
+  if (e.pointerType === "touch") return;
+  const card = e.currentTarget.querySelector<HTMLElement>(".life-card");
+  if (!card) return;
+  const r = card.getBoundingClientRect();
+  const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+  const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+  card.style.setProperty("--rx", `${((0.5 - y) * 20).toFixed(2)}deg`);
+  card.style.setProperty("--ry", `${((x - 0.5) * 26).toFixed(2)}deg`);
+  card.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
+  card.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
+}
+
+function resetCard(e: React.PointerEvent<HTMLElement>) {
+  const card = e.currentTarget.querySelector<HTMLElement>(".life-card");
+  if (!card) return;
+  for (const v of ["--rx", "--ry", "--mx", "--my"]) card.style.removeProperty(v);
+}
 
 const rgb = (v: number[]) => `rgb(${v.map((x) => Math.round(x * 255)).join(" ")})`;
 
@@ -196,18 +212,17 @@ export default function AgentPage() {
               onFocus={() => setHovered(g.id)}
               onBlur={() => setHovered(null)}
               onClick={(e) => launch(e, g)}
+              onPointerMove={tiltCard}
+              onPointerLeave={resetCard}
             >
               <span className="life-guide-aura" aria-hidden="true" />
-              <span className="life-guide-float" style={{ animationDelay: `${i * -3}s` }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={g.img}
-                  alt=""
-                  width={g.width}
-                  height={g.height}
-                  draggable={false}
-                  className={`life-guide-img ${g.side === "left" ? "life-guide-flip" : ""}`}
-                />
+              <span className="life-card-scene" style={{ animationDelay: `${i * -4.5}s` }}>
+                <span className="life-card">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={g.img} alt="" width={600} height={825} draggable={false} className="life-card-img" />
+                  <span className="life-card-holo" aria-hidden="true" />
+                  <span className="life-card-glare" aria-hidden="true" />
+                </span>
               </span>
               <span className="life-guide-label">
                 <span className="life-guide-title">{g.title}</span>
@@ -404,19 +419,25 @@ export default function AgentPage() {
         .life-nav-btn[aria-current="true"] { color:#0b0e22; background: rgba(224,231,255,0.92); border-color: transparent; }
         .life-nav-btn:focus-visible { outline:2px solid #a5b4fc; outline-offset:3px; }
 
-        .life-guide { position:absolute; z-index:3; top:0; bottom:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; width:clamp(190px, 21vw, 330px); text-decoration:none; color:#e0e7ff; font-family: var(--font-inter), system-ui, sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom:40px; }
-        .life-guide-left { left:max(2.2vw, 16px); }
-        .life-guide-right { right:max(2.2vw, 16px); }
-        .life-guide:focus-visible { outline:2px solid #a5b4fc; outline-offset:6px; border-radius:24px; }
-        .life-guide-aura { position:absolute; left:50%; top:46%; width:130%; aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; background: radial-gradient(closest-side, var(--aura), transparent 72%); opacity:0.22; filter: blur(8px); transition: opacity .6s ease, transform .6s ease; pointer-events:none; }
-        .life-guide[data-active="true"] .life-guide-aura { opacity:0.55; transform:translate(-50%,-50%) scale(1.12); }
-        .life-guide-float { position:relative; display:block; width:100%; aspect-ratio: 1 / 1.2; animation: life-bob 6.5s ease-in-out infinite; }
-        .life-guide-img { display:block; width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 18px 28px rgba(0,0,0,0.5)) drop-shadow(0 0 22px color-mix(in srgb, var(--aura) 55%, transparent)); transition: transform .55s cubic-bezier(0.22,1,0.36,1), filter .55s ease; user-select:none; }
-        .life-guide-flip { transform: scaleX(-1); }
-        .life-guide[data-active="true"] .life-guide-img { transform: scale(1.07) translateY(-6px); filter: drop-shadow(0 22px 34px rgba(0,0,0,0.55)) drop-shadow(0 0 38px color-mix(in srgb, var(--aura) 85%, transparent)); }
-        .life-guide[data-active="true"] .life-guide-flip { transform: scaleX(-1.07) scaleY(1.07) translateY(-6px); }
+        .life-guide { position:absolute; z-index:3; top:0; bottom:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; width:clamp(180px, 19vw, 300px); text-decoration:none; color:#e0e7ff; font-family: var(--font-inter), system-ui, sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom:36px; }
+        .life-guide-left { left:max(5vw, 16px); }
+        .life-guide-right { right:max(5vw, 16px); }
+        .life-guide:focus-visible { outline:2px solid #a5b4fc; outline-offset:8px; border-radius:24px; }
+        .life-guide-aura { position:absolute; left:50%; top:44%; width:120%; aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; background: radial-gradient(closest-side, var(--aura), transparent 72%); opacity:0.2; filter: blur(8px); transition: opacity .6s ease, transform .6s ease; pointer-events:none; }
+        .life-guide[data-active="true"] .life-guide-aura { opacity:0.5; transform:translate(-50%,-50%) scale(1.12); }
+
+        .life-card-scene { position:relative; display:block; width:clamp(148px, 14.5vw, 236px); aspect-ratio: 600 / 825; perspective:900px; animation: life-float 9s ease-in-out infinite; }
+        .life-card { position:absolute; inset:0; display:block; overflow:hidden; border-radius: 5.4% / 3.9%; background:#0b0e22; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--sc, 1)); transition: transform .7s cubic-bezier(0.22,1,0.36,1), box-shadow .5s ease; box-shadow: 0 26px 42px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.14), 0 0 28px color-mix(in srgb, var(--aura) 38%, transparent); will-change: transform; }
+        .life-guide[data-active="true"] .life-card { --sc:1.07; transition: transform .14s ease-out, box-shadow .5s ease; box-shadow: 0 38px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.3), 0 0 56px color-mix(in srgb, var(--aura) 70%, transparent); }
+        .life-card-img { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; user-select:none; }
+        .life-card-holo { position:absolute; inset:0; border-radius:inherit; pointer-events:none; mix-blend-mode: color-dodge; opacity:0.26; background: linear-gradient(115deg, transparent 16%, rgba(255,60,150,0.55) 29%, rgba(255,210,60,0.55) 38%, rgba(60,255,180,0.55) 47%, rgba(60,150,255,0.55) 56%, rgba(170,70,255,0.5) 65%, transparent 78%); background-size: 260% 260%; background-position: var(--mx, 30%) var(--my, 30%); animation: life-foil 8s ease-in-out infinite alternate; transition: opacity .4s ease; }
+        .life-guide[data-active="true"] .life-card-holo { opacity:0.6; animation:none; }
+        .life-card-glare { position:absolute; inset:0; border-radius:inherit; pointer-events:none; opacity:0; mix-blend-mode: soft-light; background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.95), rgba(255,255,255,0) 52%); transition: opacity .35s ease; }
+        .life-guide[data-active="true"] .life-card-glare { opacity:0.9; }
+        @keyframes life-float { 0%,100% { transform: translateY(0) rotateY(-7deg) rotateZ(-1deg); } 50% { transform: translateY(-10px) rotateY(7deg) rotateZ(1deg); } }
+        @keyframes life-foil { from { background-position: 8% 12%; } to { background-position: 92% 88%; } }
         .life-guide-label { position:relative; display:flex; flex-direction:column; align-items:center; gap:3px; text-align:center; text-shadow: 0 2px 14px rgba(5,6,15,0.9); }
-        .life-guide-title { font-size:clamp(18px, 1.7vw, 26px); font-weight:650; letter-spacing:-0.01em; color:#f5f7ff; }
+        .life-guide-title { font-size:clamp(17px, 1.45vw, 23px); font-weight:650; letter-spacing:-0.01em; color:#f5f7ff; }
         .life-guide-cap { font-size:12px; letter-spacing:0.04em; color: rgba(199,210,254,0.62); }
         .life-guide-go { display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:10.5px; letter-spacing:0.26em; text-transform:uppercase; color:#e0e7ff; opacity:0.35; transform:translateY(2px); transition: opacity .35s ease, transform .35s ease; }
         .life-guide[data-active="true"] .life-guide-go { opacity:1; transform:none; }
@@ -425,13 +446,14 @@ export default function AgentPage() {
 
         @media (max-width: 899px) {
           .life-stage[data-open="false"] .life-orb { transform: translateY(-9vh); }
-          .life-guide { top:auto; bottom:122px; width:34vw; max-width:180px; gap:6px; padding-bottom:0; justify-content:flex-end; }
+          .life-guide { top:auto; bottom:122px; width:40vw; max-width:190px; gap:12px; padding-bottom:0; justify-content:flex-end; }
+          .life-card-scene { width:min(30vw, 138px); }
           .life-links { gap:6px; bottom:16px; }
           .life-links-row { gap:5px; }
           .life-pill { padding:7px 12px; font-size:11px; }
           .life-pill-out { padding:5px 9px; font-size:10px; }
-          .life-guide-left { left:7vw; }
-          .life-guide-right { right:7vw; }
+          .life-guide-left { left:6vw; }
+          .life-guide-right { right:6vw; }
           .life-guide-cap, .life-guide-go { display:none; }
           .life-guide-title { font-size:15px; }
           .life-hint { bottom:auto; top:26px; }
@@ -446,7 +468,7 @@ export default function AgentPage() {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .life-aurora, .life-hint, .life-guide-float { animation: none; }
+          .life-aurora, .life-hint, .life-card-scene, .life-card-holo { animation: none; }
           .life-hint { opacity:0.7; }
           .life-orb { transition-duration: 0.01ms; }
         }
