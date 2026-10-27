@@ -28,7 +28,7 @@ const ELSEWHERE_LINKS = [
   { label: "Go", href: "https://go.braunf.com" },
 ];
 
-// Two Pokémon, lifted straight out of their trading-card art, guard the two things that matter most: the personal projects and the research.
+// Two trading cards guard the two things that matter most: the personal projects and the research.
 // Hovering one tints the orb and the light behind it with that card's palette.
 const paletteOf = (id: string) => CHAPTERS.find((c) => c.id === id)!.palette;
 const GUIDES = [
@@ -38,12 +38,8 @@ const GUIDES = [
     title: "Personal Projects",
     caption: "Apps, tools and AI systems",
     href: "https://projects.braunf.com",
-    img: "/art/eevee.webp",
-    alt: "Eevee, from its Special Art Rare card",
-    width: 1600,
-    height: 1336,
-    size: "clamp(220px, 19.5vw, 320px)",
-    sizeMobile: "min(34vw, 156px)",
+    img: "/cards/eevee-hd.webp",
+    alt: "Eevee ex, Special Art Rare",
     palette: paletteOf("work"),
   },
   {
@@ -52,12 +48,8 @@ const GUIDES = [
     title: "Research",
     caption: "Papers and ESP32 hardware",
     href: "https://research.braunf.com",
-    img: "/art/reuniclus.webp",
-    alt: "Reuniclus, from its Art Rare card",
-    width: 2000,
-    height: 1413,
-    size: "clamp(230px, 21vw, 340px)",
-    sizeMobile: "min(38vw, 176px)",
+    img: "/cards/reuniclus-hd.webp",
+    alt: "Reuniclus, Art Rare",
     palette: paletteOf("school"),
   },
 ] as const;
@@ -65,7 +57,7 @@ const GUIDES = [
 // Tilt the card toward the pointer and slide the foil and glare with it.
 function tiltCard(e: React.PointerEvent<HTMLElement>) {
   if (e.pointerType === "touch") return;
-  const card = e.currentTarget.querySelector<HTMLElement>(".life-art");
+  const card = e.currentTarget.querySelector<HTMLElement>(".life-gcard");
   if (!card) return;
   const r = card.getBoundingClientRect();
   const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
@@ -77,7 +69,7 @@ function tiltCard(e: React.PointerEvent<HTMLElement>) {
 }
 
 function resetCard(e: React.PointerEvent<HTMLElement>) {
-  const card = e.currentTarget.querySelector<HTMLElement>(".life-art");
+  const card = e.currentTarget.querySelector<HTMLElement>(".life-gcard");
   if (!card) return;
   for (const v of ["--rx", "--ry", "--mx", "--my"]) card.style.removeProperty(v);
 }
@@ -236,13 +228,12 @@ export default function AgentPage() {
               onPointerLeave={resetCard}
             >
               <span className="life-guide-aura" aria-hidden="true" />
-              <span
-                className="life-art-scene"
-                style={{ animationDelay: `${i * -4.5}s`, ["--w" as string]: g.size, ["--wm" as string]: g.sizeMobile } as React.CSSProperties}
-              >
-                <span className="life-art">
+              <span className="life-gcard-scene" style={{ animationDelay: `${i * -4.5}s` }}>
+                <span className="life-gcard">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={g.img} alt="" width={g.width} height={g.height} draggable={false} className="life-art-img" />
+                  <img src={g.img} alt="" width={868} height={1212} draggable={false} className="life-gcard-img" />
+                  <span className="life-gcard-holo" aria-hidden="true" />
+                  <span className="life-gcard-glare" aria-hidden="true" />
                 </span>
               </span>
               <span className="life-guide-label">
@@ -447,11 +438,15 @@ export default function AgentPage() {
         .life-guide-aura { position:absolute; left:50%; top:44%; width:120%; aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; background: radial-gradient(closest-side, var(--aura), transparent 72%); opacity:0.2; filter: blur(8px); transition: opacity .6s ease, transform .6s ease; pointer-events:none; }
         .life-guide[data-active="true"] .life-guide-aura { opacity:0.5; transform:translate(-50%,-50%) scale(1.12); }
 
-        .life-art-scene { position:relative; display:block; width:var(--w); perspective:900px; animation: life-float 9s ease-in-out infinite; }
-        .life-art { display:block; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--sc, 1)); transition: transform .7s cubic-bezier(0.22,1,0.36,1); will-change: transform; }
-        .life-guide[data-active="true"] .life-art { --sc:1.07; transition: transform .14s ease-out; }
-        .life-art-img { display:block; width:100%; height:auto; user-select:none; filter: drop-shadow(0 22px 30px rgba(0,0,0,0.5)) drop-shadow(0 0 26px color-mix(in srgb, var(--aura) 45%, transparent)); transition: filter .5s ease; }
-        .life-guide[data-active="true"] .life-art-img { filter: drop-shadow(0 30px 40px rgba(0,0,0,0.55)) drop-shadow(0 0 52px color-mix(in srgb, var(--aura) 85%, transparent)); }
+        .life-gcard-scene { position:relative; display:block; width:clamp(148px, 14.5vw, 236px); aspect-ratio: 868 / 1212; perspective:900px; animation: life-float 9s ease-in-out infinite; }
+        .life-gcard { position:absolute; inset:0; display:block; overflow:hidden; border-radius: 5.4% / 3.9%; background:#0b0e22; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--sc, 1)); transition: transform .7s cubic-bezier(0.22,1,0.36,1), box-shadow .5s ease; box-shadow: 0 26px 42px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.14), 0 0 28px color-mix(in srgb, var(--aura) 38%, transparent); will-change: transform; }
+        .life-guide[data-active="true"] .life-gcard { --sc:1.07; transition: transform .14s ease-out, box-shadow .5s ease; box-shadow: 0 38px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.3), 0 0 56px color-mix(in srgb, var(--aura) 70%, transparent); }
+        .life-gcard-img { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; user-select:none; }
+        .life-gcard-holo { position:absolute; inset:0; border-radius:inherit; pointer-events:none; mix-blend-mode: color-dodge; opacity:0.26; background: linear-gradient(115deg, transparent 16%, rgba(255,60,150,0.55) 29%, rgba(255,210,60,0.55) 38%, rgba(60,255,180,0.55) 47%, rgba(60,150,255,0.55) 56%, rgba(170,70,255,0.5) 65%, transparent 78%); background-size: 260% 260%; background-position: var(--mx, 30%) var(--my, 30%); animation: life-foil 8s ease-in-out infinite alternate; transition: opacity .4s ease; }
+        .life-guide[data-active="true"] .life-gcard-holo { opacity:0.6; animation:none; }
+        .life-gcard-glare { position:absolute; inset:0; border-radius:inherit; pointer-events:none; opacity:0; mix-blend-mode: soft-light; background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.95), rgba(255,255,255,0) 52%); transition: opacity .35s ease; }
+        .life-guide[data-active="true"] .life-gcard-glare { opacity:0.9; }
+        @keyframes life-foil { from { background-position: 8% 12%; } to { background-position: 92% 88%; } }
         @keyframes life-float { 0%,100% { transform: translateY(0) rotateY(-7deg) rotateZ(-1deg); } 50% { transform: translateY(-10px) rotateY(7deg) rotateZ(1deg); } }
         .life-guide-label { position:relative; display:flex; flex-direction:column; align-items:center; gap:3px; text-align:center; text-shadow: 0 2px 14px rgba(5,6,15,0.9); }
         .life-guide-title { font-size:clamp(17px, 1.45vw, 23px); font-weight:650; letter-spacing:-0.01em; color:#f5f7ff; }
@@ -464,7 +459,7 @@ export default function AgentPage() {
         @media (max-width: 899px) {
           .life-stage[data-open="false"] .life-orb { transform: translateY(-9vh); }
           .life-guide { top:auto; bottom:122px; width:40vw; max-width:190px; gap:12px; padding-bottom:0; justify-content:flex-end; }
-          .life-art-scene { width:var(--wm); }
+          .life-gcard-scene { width:min(30vw, 138px); }
           .life-links { gap:6px; bottom:16px; }
           .life-links-row { gap:5px; }
           .life-pill { padding:7px 12px; font-size:11px; }
@@ -485,7 +480,7 @@ export default function AgentPage() {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .life-aurora, .life-hint, .life-art-scene { animation: none; }
+          .life-aurora, .life-hint, .life-gcard-scene, .life-gcard-holo { animation: none; }
           .life-hint { opacity:0.7; }
           .life-orb { transition-duration: 0.01ms; }
         }
