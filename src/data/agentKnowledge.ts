@@ -48,7 +48,7 @@ export const TOPICS: Topic[] = [
     id: "about",
     keywords: ["who", "florian", "about", "introduce", "yourself", "background", "summary", "bio", "overview"],
     answer:
-      "The engineering side of Mabushi Lab is open-source ESP32 hardware, all in C++. CrossWave is a pair of motion-sensing devices that talk over 433 MHz RF and stream data over WebSocket. NetworkSniffer is a 433 MHz analyzer with a live web dashboard hosted on the chip. Pulsar is a wall display with live market data and a Pomodoro timer. It sits beside the research on research.braunf.com.",
+      "The engineering side of Mabushi Lab is open-source ESP32 hardware, all in C++. CrossWave is a pair of motion-sensing devices that talk over 433 MHz RF and stream data over WebSocket. NetworkSniffer is a 433 MHz analyzer with a live web dashboard hosted on the chip. Pulsar is a portfolio dashboard on a small colour display, with live quotes, currency conversion and an allocation view. It sits beside the research on research.braunf.com.",
     links: [{ label: "Research", href: "https://research.braunf.com", external: true }],
     followUps: ["What does he study?", "What is he building?", "Tell me about his research"],
   },
@@ -138,7 +138,7 @@ export const TOPICS: Topic[] = [
     id: "iot",
     keywords: ["iot", "esp32", "hardware", "embedded", "mabushi", "crosswave", "networksniffer", "pulsar", "firmware", "arduino", "rf", "electronics", "microcontroller"],
     answer:
-      "Mabushi Lab is his open-source IoT hardware lab, all on the ESP32 in C++. CrossWave is a pair of motion-sensing devices that talk over 433 MHz RF and stream data over WebSocket. NetworkSniffer is a 433 MHz analyzer with a live web dashboard hosted on the chip. Pulsar is a wall display with live market data and a Pomodoro timer.",
+      "Mabushi Lab is his open-source IoT hardware lab, all on the ESP32 in C++. CrossWave is a pair of motion-sensing devices that talk over 433 MHz RF and stream data over WebSocket. NetworkSniffer is a 433 MHz analyzer with a live web dashboard hosted on the chip. Pulsar is a portfolio dashboard on a small colour display, with live quotes, currency conversion and an allocation view.",
     links: [{ label: "Engineering lab", href: "https://research.braunf.com#engineering", external: true }],
     followUps: ["What else is he building?", "What are his skills?"],
   },

@@ -148,7 +148,7 @@ export const CHAPTERS: Chapter[] = [
       {
         title: "Mabushi Lab",
         meta: "Research & engineering lab",
-        text: "The engineering side: open-source ESP32 devices in C++: CrossWave (paired motion sensors over 433 MHz RF), NetworkSniffer (an RF analyzer with a live dashboard on the chip) and Pulsar (a wall display with market data and a Pomodoro timer).",
+        text: "The engineering side: open-source ESP32 devices in C++: CrossWave (paired motion sensors over 433 MHz RF), NetworkSniffer (an RF analyzer with a live dashboard on the chip) and Pulsar (a portfolio dashboard on a tiny colour display).",
         href: "https://research.braunf.com#engineering",
         linkLabel: "See the engineering",
         external: true,
