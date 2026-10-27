@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Radio, BarChart3, Cpu, Flame, Brain, Leaf, BookOpen, Bug } from "lucide-react";
+import { Mail, Radio, BarChart3, Cpu, BookOpen } from "lucide-react";
 import Link from "next/link";
 import Aurora from "@/components/ui/Aurora";
 import SpotlightCard from "@/components/ui/SpotlightCard";
@@ -41,6 +41,8 @@ interface Card {
   accentColor: string;
   spotlightColor: `rgba(${number}, ${number}, ${number}, ${number})`;
   gradientColors: string[];
+  cardImage: string;
+  cardAlt: string;
 }
 
 const cards: Card[] = [
@@ -57,6 +59,8 @@ const cards: Card[] = [
     accentColor: "#f59e0b",
     spotlightColor: "rgba(245, 158, 11, 0.4)",
     gradientColors: ["#f59e0b", "#d97706", "#fbbf24", "#d97706", "#f59e0b"],
+    cardImage: "/cards/eevee.webp",
+    cardAlt: "Eevee ex, Special Art Rare, Terastal Fest ex 224/187",
   },
   {
     id: "calm",
@@ -71,6 +75,8 @@ const cards: Card[] = [
     accentColor: "#65a30d",
     spotlightColor: "rgba(101, 163, 13, 0.25)",
     gradientColors: ["#4d7c0f", "#65a30d", "#a3e635", "#65a30d", "#4d7c0f"],
+    cardImage: "/cards/reuniclus.webp",
+    cardAlt: "Reuniclus, Art Rare, Wild Force 075/071",
   },
   {
     id: "research",
@@ -85,6 +91,8 @@ const cards: Card[] = [
     accentColor: "#ec4899",
     spotlightColor: "rgba(236, 72, 153, 0.3)",
     gradientColors: ["#ec4899", "#db2777", "#f472b6", "#db2777", "#ec4899"],
+    cardImage: "/cards/bronzor.webp",
+    cardAlt: "Bronzor, Art Rare, Wild Force 074/071",
   },
 ];
 
@@ -335,51 +343,40 @@ function StartMenuRow({
   );
 }
 
-// ─── Type emblem — CSS gradient + lucide icon, no freehand illustration ───────
-type PokeType = "fire" | "psychic" | "grass" | "bug";
+// ─── Collector card — the Pokémon TCG card that represents each choice ────────
+const CARD_ASPECT = 600 / 825;
 
-const TYPE_ICONS: Record<PokeType, typeof Flame> = {
-  fire: Flame,
-  psychic: Brain,
-  grass: Leaf,
-  bug: Bug,
-};
-
-function TypeEmblem({
-  variant,
-  size = 76,
+function CollectorCard({
+  src,
+  alt,
+  width = 112,
   hovered = false,
   selected = false,
   color,
 }: {
-  variant: PokeType;
-  size?: number;
+  src: string;
+  alt: string;
+  width?: number;
   hovered?: boolean;
   selected?: boolean;
   color: string;
 }) {
-  const Icon = TYPE_ICONS[variant];
   const reducedMotion = usePrefersReducedMotion();
+  const height = Math.round(width / CARD_ASPECT);
 
   return (
     <motion.div
-      style={{ width: size, height: size, position: "relative" }}
+      style={{ width, height, position: "relative" }}
       animate={
         reducedMotion
-          ? { scale: selected ? 1.08 : 1 }
+          ? { scale: selected ? 1.06 : 1 }
           : selected
-          ? { scale: [1, 1.16, 0.94, 1.05, 1], rotate: [0, -6, 6, -3, 0] }
+          ? { scale: [1, 1.12, 0.96, 1.04, 1], rotate: [0, -4, 4, -2, 0] }
           : hovered
-          ? { y: [0, -5, 0] }
-          : { y: 0 }
+          ? { y: -6, rotate: -2 }
+          : { y: 0, rotate: 0 }
       }
-      transition={
-        reducedMotion
-          ? { duration: 0.2 }
-          : selected
-          ? { duration: 0.55, ease: "easeOut" }
-          : { duration: 0.8, ease: "easeInOut", repeat: hovered ? Infinity : 0 }
-      }
+      transition={reducedMotion ? { duration: 0.2 } : { duration: selected ? 0.55 : 0.3, ease: "easeOut" }}
     >
       {/* ground shadow */}
       <div
@@ -388,39 +385,58 @@ function TypeEmblem({
           bottom: "-9px",
           left: "50%",
           transform: "translateX(-50%)",
-          width: `${size * 0.55}px`,
-          height: `${size * 0.1}px`,
+          width: `${width * 0.7}px`,
+          height: "9px",
           borderRadius: "50%",
           background: "rgba(0,0,0,0.4)",
-          filter: "blur(3px)",
+          filter: "blur(4px)",
         }}
       />
-
       <div
         style={{
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: `radial-gradient(circle at 34% 30%, ${color}ee, ${color} 65%, ${color}bb 100%)`,
-          border: "3px solid #161616",
+          position: "relative",
+          width,
+          height,
+          borderRadius: "7px",
+          overflow: "hidden",
           boxShadow:
             hovered || selected
-              ? `0 0 0 4px ${color}30, 0 10px 24px ${color}55`
-              : `0 0 0 3px ${color}20, 0 6px 14px rgba(0,0,0,0.35)`,
+              ? `0 0 0 2px ${color}, 0 12px 26px ${color}66`
+              : "0 0 0 1px rgba(0,0,0,0.55), 0 6px 14px rgba(0,0,0,0.35)",
           transition: "box-shadow 0.25s ease",
         }}
       >
-        <Icon size={size * 0.46} color="#161616" strokeWidth={2.2} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={alt}
+          width={600}
+          height={825}
+          loading="eager"
+          draggable={false}
+          style={{ width: "100%", height: "100%", display: "block", objectFit: "cover" }}
+        />
+        {/* holo sheen */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.38) 48%, transparent 66%)",
+            opacity: hovered || selected ? 1 : 0,
+            transform: hovered || selected ? "translateX(0)" : "translateX(-40%)",
+            transition: "opacity 0.35s ease, transform 0.6s ease",
+            mixBlendMode: "overlay",
+            pointerEvents: "none",
+          }}
+        />
       </div>
 
       {/* selection flash */}
       {selected && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.3 }}
-          animate={{ opacity: [0, 1, 0], scale: [0.3, 1.9, 2.1] }}
+          initial={{ opacity: 0, scale: 0.6 }}
+          animate={{ opacity: [0, 1, 0], scale: [0.6, 1.5, 1.7] }}
           transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
           style={{
             position: "absolute",
@@ -926,17 +942,17 @@ export default function SelectPage() {
                         display: "flex",
                         justifyContent: "center",
                         marginTop: "4px",
-                        marginBottom: "16px",
+                        marginBottom: "22px",
                         filter: card.available ? "none" : "grayscale(1)",
                         opacity: card.available ? 1 : 0.4,
                       }}
                     >
-                      <TypeEmblem
-                        variant={card.pokemonType.toLowerCase() as PokeType}
-                        size={68}
+                      <CollectorCard
+                        src={card.cardImage}
+                        alt={card.cardAlt}
                         hovered={isHovered}
                         selected={isSelected}
-                        color={card.available ? card.accentColor : "#666"}
+                        color={card.accentColor}
                       />
                     </div>
 
