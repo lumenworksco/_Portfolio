@@ -140,7 +140,7 @@ export const CHAPTERS: Chapter[] = [
       {
         title: "Personal projects",
         meta: "Lumen Studio · Oct 2023 –",
-        text: "Apps and tools he builds on his own: Velox (an autonomous trading system), Piste (an Android ski companion), Tokn (a macOS menu bar app), Feather (an early-alpha macOS browser), and a Go app with a built-in AI.",
+        text: "Apps and tools he builds on his own: Velox (an autonomous trading system), CalmCampus, Tokn (a macOS menu bar app), Feather (an early-alpha macOS browser), Nihongo (a Japanese learning app), a Go app with a built-in AI, and Project Silkworm (a preference-dataset pipeline).",
         href: "https://projects.braunf.com",
         linkLabel: "Browse the projects",
         external: true,

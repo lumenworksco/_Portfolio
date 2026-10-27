@@ -82,7 +82,7 @@ export const TOPICS: Topic[] = [
     id: "projects",
     keywords: ["project", "projects", "building", "built", "build", "apps", "app", "portfolio", "lumen", "side", "ship", "shipped", "tokn", "feather", "macos"],
     answer:
-      "His personal projects live at projects.braunf.com. Highlights: Velox, an autonomous equity trading system; Piste, an Android ski companion; Tokn, a macOS menu bar app for Claude usage; Feather, an early-alpha native macOS browser; a Japanese learning PWA; and a Go (baduk) app with a built-in AI opponent. He builds them full stack, from idea to release.",
+      "His personal projects live at projects.braunf.com. Highlights: Velox, an autonomous equity trading system; Tokn, a macOS menu bar app for Claude usage; Feather, an early-alpha native macOS browser; a Japanese learning PWA; and a Go (baduk) app with a built-in AI opponent. He builds them full stack, from idea to release.",
     links: [{ label: "Personal projects", href: "https://projects.braunf.com", external: true }],
     followUps: ["Tell me about Velox", "Tell me about the IoT lab"],
   },

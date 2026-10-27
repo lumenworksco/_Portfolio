@@ -81,8 +81,8 @@ function run(
       if (arg === "projects/" || arg === "projects") {
         return [
           BLANK(),
-          L("out",   "lumen-studio/   calm-campus/   velox/     finsight/"),
-          L("out",   "leafy/          piste/         nihongo/   research/"),
+          L("out",   "lumen-studio/   calm-campus/   velox/     tokn/"),
+          L("out",   "feather/        nihongo/       go/        research/"),
           BLANK(),
         ];
       }
@@ -142,11 +142,12 @@ function run(
         "calm-campus":  "https://cc.braunf.com",
         "nihongo":      "https://nihongo.braunf.com",
         "go":           "https://go.braunf.com",
+        "velox":        "https://velox.braunf.com",
+        "tokn":         "https://tokn.braunf.com",
+        "feather":      "https://feather.braunf.com",
       };
       const url = projects[arg];
       if (!url) {
-        const notHosted = ["velox","finsight","leafy","piste"].includes(arg);
-        if (notHosted) return [L("muted", `${arg}: not publicly hosted.`), BLANK()];
         return [L("err", `open: unknown project '${arg}'`), L("muted", "try: projects, research, calmcampus, nihongo, go"), BLANK()];
       }
       setTimeout(() => window.open(url, "_blank"), 250);
