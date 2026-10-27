@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowUp, ArrowUpRight } from "lucide-react";
-import Orb, { type OrbState } from "@/components/agent/Orb";
+import AgentOrb from "@/components/agent/AgentOrb";
+import type { OrbState } from "@/components/agent/Orb";
 import { respond, type AgentReply } from "@/lib/agentEngine";
 import { STARTER_PROMPTS, type AgentLink } from "@/data/agentKnowledge";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
@@ -310,7 +311,7 @@ export default function AgentPage() {
         <h1 className="sr-only">Ask Florian: an assistant that answers questions about Florian Braun</h1>
 
         <div className="relative shrink-0" style={{ height: "clamp(210px,38vh,420px)", width: "min(94vw, 880px)" }}>
-          <Orb
+          <AgentOrb
             state={orbState}
             pulse={pulse}
             typing={typing}
