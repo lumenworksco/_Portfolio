@@ -22,13 +22,41 @@ const SITE_LINKS = [
   { label: "Contact", href: "/contact" },
 ];
 const ELSEWHERE_LINKS = [
-  { label: "Research", href: "https://research.braunf.com" },
-  { label: "Personal Projects", href: "https://projects.braunf.com" },
   { label: "CalmCampus", href: "https://cc.braunf.com" },
   { label: "DataCamp", href: "https://data.braunf.com" },
   { label: "Nihongo", href: "https://nihongo.braunf.com" },
   { label: "Go", href: "https://go.braunf.com" },
 ];
+
+// Two Pokémon guard the two things that matter most: the personal projects and the research.
+// Hovering one tints the orb and the light behind it with that guide's palette.
+const paletteOf = (id: string) => CHAPTERS.find((c) => c.id === id)!.palette;
+const GUIDES = [
+  {
+    id: "projects",
+    side: "left",
+    title: "Personal Projects",
+    caption: "Apps, tools and AI systems",
+    href: "https://projects.braunf.com",
+    img: "/pokemon/eevee.webp",
+    alt: "Eevee",
+    width: 344,
+    height: 404,
+    palette: paletteOf("work"),
+  },
+  {
+    id: "research",
+    side: "right",
+    title: "Research",
+    caption: "Papers and ESP32 hardware",
+    href: "https://research.braunf.com",
+    img: "/pokemon/bronzor.webp",
+    alt: "Bronzor",
+    width: 376,
+    height: 454,
+    palette: paletteOf("research"),
+  },
+] as const;
 
 const rgb = (v: number[]) => `rgb(${v.map((x) => Math.round(x * 255)).join(" ")})`;
 
@@ -61,12 +89,25 @@ function ItemLink({ item }: { item: LifeItem }) {
 
 export default function AgentPage() {
   const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [leaving, setLeaving] = useState<(typeof GUIDES)[number] | null>(null);
   const [idx, setIdx] = useState(0);
   const orbRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
 
   const chapter = CHAPTERS[idx];
-  const palette: Palette = open ? chapter.palette : DEFAULT_PALETTE;
+  const hoveredGuide = GUIDES.find((g) => g.id === (leaving?.id ?? hovered));
+  const palette: Palette = open ? chapter.palette : hoveredGuide ? hoveredGuide.palette : DEFAULT_PALETTE;
+
+  // A short flash in the guide's colour, then on to the site (straight away for reduced motion).
+  const launch = (e: React.MouseEvent, guide: (typeof GUIDES)[number]) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    if (leaving) return;
+    setLeaving(guide);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(() => window.location.assign(guide.href), reduced ? 0 : 650);
+  };
 
   const goTo = useCallback((i: number) => setIdx((i + CHAPTERS.length) % CHAPTERS.length), []);
 
@@ -134,6 +175,63 @@ export default function AgentPage() {
           />
         </div>
       </div>
+
+      {/* The two guides */}
+      <AnimatePresence>
+        {!open &&
+          GUIDES.map((g, i) => (
+            <motion.a
+              key={g.id}
+              href={g.href}
+              className={`life-guide life-guide-${g.side}`}
+              style={{ ["--aura" as string]: rgb(g.palette.blue), ["--aura2" as string]: rgb(g.palette.peach) } as React.CSSProperties}
+              aria-label={`${g.title}: ${g.caption}`}
+              data-active={hovered === g.id || leaving?.id === g.id}
+              initial={{ opacity: 0, x: g.side === "left" ? -48 : 48 }}
+              animate={{ opacity: leaving && leaving.id !== g.id ? 0.25 : 1, x: 0 }}
+              exit={{ opacity: 0, x: g.side === "left" ? -32 : 32 }}
+              transition={{ duration: 0.9, delay: 0.5 + i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+              onMouseEnter={() => setHovered(g.id)}
+              onMouseLeave={() => setHovered(null)}
+              onFocus={() => setHovered(g.id)}
+              onBlur={() => setHovered(null)}
+              onClick={(e) => launch(e, g)}
+            >
+              <span className="life-guide-aura" aria-hidden="true" />
+              <span className="life-guide-float" style={{ animationDelay: `${i * -3}s` }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={g.img}
+                  alt=""
+                  width={g.width}
+                  height={g.height}
+                  draggable={false}
+                  className={`life-guide-img ${g.side === "left" ? "life-guide-flip" : ""}`}
+                />
+              </span>
+              <span className="life-guide-label">
+                <span className="life-guide-title">{g.title}</span>
+                <span className="life-guide-cap">{g.caption}</span>
+                <span className="life-guide-go">
+                  Enter <ArrowUpRight size={13} aria-hidden="true" />
+                </span>
+              </span>
+            </motion.a>
+          ))}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {leaving && (
+          <motion.div
+            aria-hidden="true"
+            className="life-flash"
+            style={{ background: `radial-gradient(circle at 50% 50%, ${rgb(leaving.palette.peach)} 0%, ${rgb(leaving.palette.blue)} 55%, #05060f 100%)` }}
+            initial={{ opacity: 0, scale: 1.08 }}
+            animate={{ opacity: 0.94, scale: 1 }}
+            transition={{ duration: 0.6, ease: "easeIn" }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Chapter content */}
       <AnimatePresence>
@@ -306,6 +404,39 @@ export default function AgentPage() {
         .life-nav-btn[aria-current="true"] { color:#0b0e22; background: rgba(224,231,255,0.92); border-color: transparent; }
         .life-nav-btn:focus-visible { outline:2px solid #a5b4fc; outline-offset:3px; }
 
+        .life-guide { position:absolute; z-index:3; top:0; bottom:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; width:clamp(190px, 21vw, 330px); text-decoration:none; color:#e0e7ff; font-family: var(--font-inter), system-ui, sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom:40px; }
+        .life-guide-left { left:max(2.2vw, 16px); }
+        .life-guide-right { right:max(2.2vw, 16px); }
+        .life-guide:focus-visible { outline:2px solid #a5b4fc; outline-offset:6px; border-radius:24px; }
+        .life-guide-aura { position:absolute; left:50%; top:46%; width:130%; aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; background: radial-gradient(closest-side, var(--aura), transparent 72%); opacity:0.22; filter: blur(8px); transition: opacity .6s ease, transform .6s ease; pointer-events:none; }
+        .life-guide[data-active="true"] .life-guide-aura { opacity:0.55; transform:translate(-50%,-50%) scale(1.12); }
+        .life-guide-float { position:relative; display:block; width:100%; aspect-ratio: 1 / 1.2; animation: life-bob 6.5s ease-in-out infinite; }
+        .life-guide-img { display:block; width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 18px 28px rgba(0,0,0,0.5)) drop-shadow(0 0 22px color-mix(in srgb, var(--aura) 55%, transparent)); transition: transform .55s cubic-bezier(0.22,1,0.36,1), filter .55s ease; user-select:none; }
+        .life-guide-flip { transform: scaleX(-1); }
+        .life-guide[data-active="true"] .life-guide-img { transform: scale(1.07) translateY(-6px); filter: drop-shadow(0 22px 34px rgba(0,0,0,0.55)) drop-shadow(0 0 38px color-mix(in srgb, var(--aura) 85%, transparent)); }
+        .life-guide[data-active="true"] .life-guide-flip { transform: scaleX(-1.07) scaleY(1.07) translateY(-6px); }
+        .life-guide-label { position:relative; display:flex; flex-direction:column; align-items:center; gap:3px; text-align:center; text-shadow: 0 2px 14px rgba(5,6,15,0.9); }
+        .life-guide-title { font-size:clamp(18px, 1.7vw, 26px); font-weight:650; letter-spacing:-0.01em; color:#f5f7ff; }
+        .life-guide-cap { font-size:12px; letter-spacing:0.04em; color: rgba(199,210,254,0.62); }
+        .life-guide-go { display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:10.5px; letter-spacing:0.26em; text-transform:uppercase; color:#e0e7ff; opacity:0.35; transform:translateY(2px); transition: opacity .35s ease, transform .35s ease; }
+        .life-guide[data-active="true"] .life-guide-go { opacity:1; transform:none; }
+        @keyframes life-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+        .life-flash { position:fixed; inset:0; z-index:40; pointer-events:none; }
+
+        @media (max-width: 899px) {
+          .life-stage[data-open="false"] .life-orb { transform: translateY(-9vh); }
+          .life-guide { top:auto; bottom:122px; width:34vw; max-width:180px; gap:6px; padding-bottom:0; justify-content:flex-end; }
+          .life-links { gap:6px; bottom:16px; }
+          .life-links-row { gap:5px; }
+          .life-pill { padding:7px 12px; font-size:11px; }
+          .life-pill-out { padding:5px 9px; font-size:10px; }
+          .life-guide-left { left:7vw; }
+          .life-guide-right { right:7vw; }
+          .life-guide-cap, .life-guide-go { display:none; }
+          .life-guide-title { font-size:15px; }
+          .life-hint { bottom:auto; top:26px; }
+        }
+
         @media (max-width: 899px) {
           .life-stage[data-open="true"] .life-orb { transform: translate(0, -29vh) scale(0.44); }
           .life-panel { left:20px; right:20px; width:auto; top:34vh; bottom:70px; justify-content:flex-start; }
@@ -315,7 +446,7 @@ export default function AgentPage() {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .life-aurora, .life-hint { animation: none; }
+          .life-aurora, .life-hint, .life-guide-float { animation: none; }
           .life-hint { opacity:0.7; }
           .life-orb { transition-duration: 0.01ms; }
         }
