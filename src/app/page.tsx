@@ -767,6 +767,8 @@ export default function SelectPage() {
       </AnimatePresence>
 
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-4 md:py-6 gap-3 md:gap-4">
+        <h1 className="sr-only">Florian Braun: engineer, researcher and co-founder</h1>
+
         {/* Overworld strip */}
         <motion.div
           initial={{ opacity: 0, y: -12 }}

@@ -19,9 +19,14 @@ export default function ContactPage() {
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
-    await navigator.clipboard.writeText(EMAIL);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard can be unavailable (insecure context, denied permission).
+      // The address is shown right beside the button, so there is nothing to recover.
+    }
   };
 
   return (
@@ -180,6 +185,7 @@ export default function ContactPage() {
                       "rgba(255,255,255,0.1)";
                   }}
                   title="Copy email"
+                  aria-label={copied ? "Email address copied" : "Copy email address"}
                 >
                   <AnimatePresence mode="wait">
                     {copied ? (

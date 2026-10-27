@@ -66,9 +66,18 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pulse-dot {
+  .pulse-dot,
+  .dialog-cursor {
     animation: none;
   }
+}
+
+/* Visible keyboard focus everywhere; components that draw their own focus state set outline: none inline */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 3px;
 }
 
 @media print {
