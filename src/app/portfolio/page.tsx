@@ -859,6 +859,12 @@ export default function PortfolioPage() {
           {/* Papers */}
           <div className="flex flex-col gap-4">
             <ResearchCard
+              title="Excess Separability: Nuisance-Controlled Residual-Stream Probing for Benchmark Contamination Detection"
+              year="August 2026"
+              abstract="A nuisance-controlled protocol for detecting benchmark contamination with linear probes on internal activations: a zero-sum depth-profile contrast against a level-matched placebo, tested with a label-permutation null. Shows that the naive probe approach can have false-positive rates anywhere from 0.03 to 0.99 under a true null. Preprint on arXiv, with code released."
+              tags={["NLP", "LLM Evaluation", "Probing", "Benchmark Contamination", "Statistics"]}
+            />
+            <ResearchCard
               title="Interpretable Cross-Lingual Alignment in Small Language Models: Probing Cultural and Pragmatic Reasoning in Japanese-English Bilingual LLMs"
               year="April 2026"
               abstract="Introduces J-PragEval-v0, a minimal-pair benchmark for four core Japanese pragmatic phenomena, and probes how TinySwallow-1.5B encodes honorifics, zero anaphora, in-group reference, and indirect refusal. Proposes Pragmatic Representation Steering (PRS), a parameter-free inference-time steering method via residual-stream activation editing."
@@ -872,10 +878,10 @@ export default function PortfolioPage() {
             />
           </div>
 
-          {/* Link to full research page */}
+          {/* Link to the full research site */}
           <motion.div variants={itemVariant} className="mt-5">
-            <Link
-              href="/research"
+            <a
+              href="https://research.braunf.com"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -891,7 +897,7 @@ export default function PortfolioPage() {
               onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(16,185,129,0.6)")}
             >
               View all research →
-            </Link>
+            </a>
           </motion.div>
         </Section>
 

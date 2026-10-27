@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Radio, BarChart3, Cpu, BookOpen } from "lucide-react";
+import { Mail, Radio, BarChart3, BookOpen } from "lucide-react";
 import Link from "next/link";
 import Aurora from "@/components/ui/Aurora";
 import SpotlightCard from "@/components/ui/SpotlightCard";
@@ -54,7 +54,7 @@ const cards: Card[] = [
     typeColor: "#EE8130",
     description:
       "The apps, tools and AI systems I build on my own, full stack and end to end: an autonomous trading system, mobile and macOS apps, and open-source utilities.",
-    href: "https://lumen.braunf.com",
+    href: "https://projects.braunf.com",
     available: true,
     accentColor: "#f59e0b",
     spotlightColor: "rgba(245, 158, 11, 0.4)",
@@ -85,8 +85,8 @@ const cards: Card[] = [
     pokemonType: "PSYCHIC",
     typeColor: "#F95587",
     description:
-      "Independent research on cross-lingual NLP and LLM interpretability — probing how small language models reason across languages and cultures, from pragmatic alignment to the algorithmic foundations of AI systems.",
-    href: "/research",
+      "Independent research on cross-lingual NLP and LLM interpretability, from Japanese pragmatics to detecting benchmark contamination, plus the open-source ESP32 hardware lab that sits beside it.",
+    href: "https://research.braunf.com",
     available: true,
     accentColor: "#ec4899",
     spotlightColor: "rgba(236, 72, 153, 0.3)",
@@ -1119,7 +1119,6 @@ export default function SelectPage() {
               <StartMenuRow href="/contact" icon={<Mail size={14} />} label="CONTACT" color={EMERALD_INK} soundEnabled={musicEnabled} />
               <StartMenuRow href="/now" icon={<Radio size={14} />} label="NOW" color={EMERALD_INK} soundEnabled={musicEnabled} />
               <StartMenuRow href="https://data.braunf.com" external icon={<BarChart3 size={14} />} label="DATACAMP" color="#f59e0b" soundEnabled={musicEnabled} />
-              <StartMenuRow href="https://iot.braunf.com" external icon={<Cpu size={14} />} label="IOT LAB" color="#60a5fa" soundEnabled={musicEnabled} />
             </div>
           </div>
         </FadeContent>

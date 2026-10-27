@@ -11,7 +11,8 @@ import FadeContent from "@/components/ui/FadeContent";
 const EMAIL = "contact@braunf.com";
 
 const LINKS = [
-  { label: "Personal Projects", href: "https://lumen.braunf.com", sub: "lumen.braunf.com" },
+  { label: "Personal Projects", href: "https://projects.braunf.com", sub: "projects.braunf.com" },
+  { label: "Research", href: "https://research.braunf.com", sub: "research.braunf.com" },
   { label: "CalmCampus", href: "https://cc.braunf.com", sub: "cc.braunf.com" },
 ];
 

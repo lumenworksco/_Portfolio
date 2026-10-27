@@ -102,7 +102,7 @@ function run(
           L("out",   "Focus     AI · Entrepreneurship · NLP"),
           BLANK(),
           L("muted", "Building at the intersection of technology and product."),
-          L("muted", "Two companies, two research papers, and a lot of side projects."),
+          L("muted", "A startup, three research papers, and a lot of side projects."),
           BLANK(),
         ],
         "skills.txt": [
@@ -116,9 +116,10 @@ function run(
         ],
         "contact.txt": [
           BLANK(),
-          L("out",   "Email   contact@braunf.com"),
-          L("out",   "Site    braunf.com"),
-          L("out",   "Work    lumen.braunf.com"),
+          L("out",   "Email     contact@braunf.com"),
+          L("out",   "Site      braunf.com"),
+          L("out",   "Projects  projects.braunf.com"),
+          L("out",   "Research  research.braunf.com"),
           BLANK(),
         ],
       };
@@ -130,9 +131,12 @@ function run(
 
     case "open": {
       const projects: Record<string, string> = {
-        "lumen":        "https://lumen.braunf.com",
-        "lumen-studio": "https://lumen.braunf.com",
-        "lumenstudio":  "https://lumen.braunf.com",
+        "lumen":        "https://projects.braunf.com",
+        "lumen-studio": "https://projects.braunf.com",
+        "lumenstudio":  "https://projects.braunf.com",
+        "projects":     "https://projects.braunf.com",
+        "research":     "https://research.braunf.com",
+        "mabushi":      "https://research.braunf.com",
         "calm":         "https://cc.braunf.com",
         "calmcampus":   "https://cc.braunf.com",
         "calm-campus":  "https://cc.braunf.com",
@@ -141,9 +145,9 @@ function run(
       };
       const url = projects[arg];
       if (!url) {
-        const notHosted = ["velox","finsight","leafy","piste","research"].includes(arg);
+        const notHosted = ["velox","finsight","leafy","piste"].includes(arg);
         if (notHosted) return [L("muted", `${arg}: not publicly hosted.`), BLANK()];
-        return [L("err", `open: unknown project '${arg}'`), L("muted", "try: lumen, calmcampus, nihongo, go"), BLANK()];
+        return [L("err", `open: unknown project '${arg}'`), L("muted", "try: projects, research, calmcampus, nihongo, go"), BLANK()];
       }
       setTimeout(() => window.open(url, "_blank"), 250);
       return [L("muted", `→ opening ${url}`), BLANK()];

@@ -29,16 +29,16 @@ export const EMAIL = "contact@braunf.com";
 
 export const DESTINATIONS: Destination[] = [
   { id: "home", label: "the home menu", href: "/", keywords: ["home", "menu", "start", "main page", "homepage"] },
-  { id: "research", label: "Research", href: "/research", keywords: ["research", "papers", "paper", "publications"] },
+  { id: "research", label: "Research", href: "https://research.braunf.com", external: true, keywords: ["research", "papers", "paper", "publications"] },
   { id: "pokedex", label: "the Pokédex", href: "/pokedex", keywords: ["pokedex", "pokédex", "achievements", "trophies"] },
   { id: "music", label: "Beats", href: "/music", keywords: ["music", "beats", "loops", "po-33", "po33"] },
   { id: "now", label: "Now", href: "/now", keywords: ["now", "current focus", "currently"] },
   { id: "contact", label: "Contact", href: "/contact", keywords: ["contact", "email page"] },
   { id: "terminal", label: "the Terminal", href: "/terminal", keywords: ["terminal", "console", "shell"] },
-  { id: "projects", label: "Personal Projects", href: "https://lumen.braunf.com", external: true, keywords: ["projects", "lumen", "portfolio of projects", "personal projects"] },
+  { id: "projects", label: "Personal Projects", href: "https://projects.braunf.com", external: true, keywords: ["projects", "lumen", "portfolio of projects", "personal projects"] },
   { id: "calmcampus", label: "CalmCampus", href: "https://cc.braunf.com", external: true, keywords: ["calmcampus", "calm campus"] },
   { id: "datacamp", label: "DataCamp credentials", href: "https://data.braunf.com", external: true, keywords: ["datacamp", "certificates", "certifications", "credentials"] },
-  { id: "iot", label: "the IoT Lab", href: "https://iot.braunf.com", external: true, keywords: ["iot", "mabushi", "esp32", "hardware"] },
+  { id: "iot", label: "the engineering lab", href: "https://research.braunf.com#engineering", external: true, keywords: ["iot", "mabushi", "esp32", "hardware"] },
   { id: "nihongo", label: "Nihongo", href: "https://nihongo.braunf.com", external: true, keywords: ["nihongo", "wanikani"] },
   { id: "go", label: "the Go app", href: "https://go.braunf.com", external: true, keywords: ["go app", "baduk", "igo", "weiqi"] },
 ];
@@ -48,8 +48,8 @@ export const TOPICS: Topic[] = [
     id: "about",
     keywords: ["who", "florian", "about", "introduce", "yourself", "background", "summary", "bio", "overview"],
     answer:
-      "Florian Braun is an Applied Computer Science student at UCLL in Leuven, Belgium, working across AI, data and product. He co-founded CalmCampus, builds his own apps, and does independent research in cross-lingual NLP and LLM interpretability.",
-    links: [{ label: "Research", href: "/research" }],
+      "The engineering side of Mabushi Lab is open-source ESP32 hardware, all in C++. CrossWave is a pair of motion-sensing devices that talk over 433 MHz RF and stream data over WebSocket. NetworkSniffer is a 433 MHz analyzer with a live web dashboard hosted on the chip. Pulsar is a wall display with live market data and a Pomodoro timer. It sits beside the research on research.braunf.com.",
+    links: [{ label: "Research", href: "https://research.braunf.com", external: true }],
     followUps: ["What does he study?", "What is he building?", "Tell me about his research"],
   },
   {
@@ -82,8 +82,8 @@ export const TOPICS: Topic[] = [
     id: "projects",
     keywords: ["project", "projects", "building", "built", "build", "apps", "app", "portfolio", "lumen", "side", "ship", "shipped", "tokn", "feather", "macos"],
     answer:
-      "His personal projects live at lumen.braunf.com. Highlights: Velox, an autonomous equity trading system; Piste, an Android ski companion; Tokn, a macOS menu bar app for Claude usage; Feather, an early-alpha native macOS browser; a Japanese learning PWA; and a Go (baduk) app with a built-in AI opponent. He builds them full stack, from idea to release.",
-    links: [{ label: "Personal projects", href: "https://lumen.braunf.com", external: true }],
+      "His personal projects live at projects.braunf.com. Highlights: Velox, an autonomous equity trading system; Piste, an Android ski companion; Tokn, a macOS menu bar app for Claude usage; Feather, an early-alpha native macOS browser; a Japanese learning PWA; and a Go (baduk) app with a built-in AI opponent. He builds them full stack, from idea to release.",
+    links: [{ label: "Personal projects", href: "https://projects.braunf.com", external: true }],
     followUps: ["Tell me about Velox", "Tell me about the IoT lab"],
   },
   {
@@ -91,7 +91,7 @@ export const TOPICS: Topic[] = [
     keywords: ["velox", "trading", "trade", "alpaca", "algorithmic", "quant", "finance", "stocks", "equity"],
     answer:
       "Velox is a terminal-native autonomous equity trading system built on Alpaca. It runs 6 strategies through an 18-stage signal pipeline, with ML gating, value-at-risk limits, a circuit breaker and a live dashboard. It is written in Python and published as an open-source repository.",
-    links: [{ label: "Velox page", href: "https://lumen.braunf.com/velox.html", external: true }],
+    links: [{ label: "Velox page", href: "https://projects.braunf.com/velox.html", external: true }],
     followUps: ["What else is he building?", "What are his skills?"],
   },
   {
@@ -99,7 +99,7 @@ export const TOPICS: Topic[] = [
     keywords: ["research", "paper", "papers", "nlp", "llm", "llms", "interpretability", "cross-lingual", "crosslingual", "alignment", "steering", "pragmatic", "thesis", "publication", "tinyswallow", "probing"],
     answer:
       "His research focus is cross-lingual NLP and LLM interpretability. In April 2026 he introduced J-PragEval-v0, a minimal-pair benchmark for four Japanese pragmatic phenomena, probed how TinySwallow-1.5B encodes honorifics, zero anaphora, in-group reference and indirect refusal, and proposed Pragmatic Representation Steering, a parameter-free way to steer a model by editing residual-stream activations at inference time. In October 2025 he also wrote a paper on the role of data structures and algorithms in AI systems.",
-    links: [{ label: "Read the research", href: "/research" }],
+    links: [{ label: "Read the research", href: "https://research.braunf.com", external: true }],
     followUps: ["Why Japanese?", "What are his skills?"],
   },
   {
@@ -139,7 +139,7 @@ export const TOPICS: Topic[] = [
     keywords: ["iot", "esp32", "hardware", "embedded", "mabushi", "crosswave", "networksniffer", "pulsar", "firmware", "arduino", "rf", "electronics", "microcontroller"],
     answer:
       "Mabushi Lab is his open-source IoT hardware lab, all on the ESP32 in C++. CrossWave is a pair of motion-sensing devices that talk over 433 MHz RF and stream data over WebSocket. NetworkSniffer is a 433 MHz analyzer with a live web dashboard hosted on the chip. Pulsar is a wall display with live market data and a Pomodoro timer.",
-    links: [{ label: "IoT Lab", href: "https://iot.braunf.com", external: true }],
+    links: [{ label: "Engineering lab", href: "https://research.braunf.com#engineering", external: true }],
     followUps: ["What else is he building?", "What are his skills?"],
   },
   {

@@ -13,7 +13,7 @@ Personal hub for [braunf.com](https://braunf.com): a Pokémon-style start menu t
 | --- | --- |
 | `/` | Pokémon-style start menu hub with WebGL aurora background and links to projects |
 | `/portfolio` | Experience, education, skills, languages and GitHub activity |
-| `/research` | Papers and research in NLP, cross-lingual alignment and LLM interpretability |
+| `/research` | Redirects to [research.braunf.com](https://research.braunf.com), where the papers and the Mabushi Lab engineering work now live together |
 | `/pokedex` | Searchable, filterable Pokédex of achievements (hackathons, awards, education, certifications) |
 | `/terminal` | Interactive terminal with commands |
 | `/music` | Loops made on a Teenage Engineering PO-33 K.O., with a player |

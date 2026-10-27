@@ -16,17 +16,16 @@ const GRAIN =
 // Where else to go from the lone orb. Same destinations as the home menu; the hidden
 // terminal and the gated CV page are left out on purpose.
 const SITE_LINKS = [
-  { label: "Research", href: "/research" },
   { label: "Pokédex", href: "/pokedex" },
   { label: "Beats", href: "/music" },
   { label: "Now", href: "/now" },
   { label: "Contact", href: "/contact" },
 ];
 const ELSEWHERE_LINKS = [
-  { label: "Personal Projects", href: "https://lumen.braunf.com" },
+  { label: "Research", href: "https://research.braunf.com" },
+  { label: "Personal Projects", href: "https://projects.braunf.com" },
   { label: "CalmCampus", href: "https://cc.braunf.com" },
   { label: "DataCamp", href: "https://data.braunf.com" },
-  { label: "IoT Lab", href: "https://iot.braunf.com" },
   { label: "Nihongo", href: "https://nihongo.braunf.com" },
   { label: "Go", href: "https://go.braunf.com" },
 ];
