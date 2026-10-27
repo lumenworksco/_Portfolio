@@ -44,15 +44,15 @@ export const achievements: Achievement[] = [
   {
     id: "001",
     name: "Lumen Studio",
-    org: "Co-Founder & Lead Engineer",
+    org: "Independent Developer",
     period: "Oct 2023 – Present",
-    category: "founding",
+    category: "role",
     types: ["FIRE", "NORMAL"],
     icon: Zap,
-    description: "Product-focused tech studio building original apps — full stack, from idea to production.",
+    description: "My personal projects portfolio: original apps, built full stack from idea to production.",
     detail:
-      "A product-focused tech studio building its own apps from end to end. Lead engineering across the full product build cycle: ideation, technical planning, development, testing, release, and iteration. End-to-end across the stack — back-end services and APIs, front-end experiences, infrastructure, deployments, and performance optimisation.",
-    highlight: "Co-Founder",
+      "My personal projects portfolio, published as Lumen Studio. I build my own apps from end to end: ideation, technical planning, development, testing, release and iteration, across back-end services and APIs, front-end experiences, infrastructure, deployments and performance optimisation.",
+    highlight: "Solo",
   },
   {
     id: "002",

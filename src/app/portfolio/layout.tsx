@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Portfolio",
   description:
-    "Experience, education, skills, and research of Florian Braun — Co-Founder at Lumen Studio & CalmCampus, BASc Applied CS at UCLL.",
+    "Experience, education, skills, and research of Florian Braun — Co-Founder at CalmCampus, BASc Applied CS at UCLL.",
   openGraph: {
     title: "Portfolio · Florian Braun",
     description:

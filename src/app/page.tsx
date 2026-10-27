@@ -48,12 +48,12 @@ interface Card {
 const cards: Card[] = [
   {
     id: "lumen",
-    title: "Lumen Studio",
-    subtitle: "Tech Studio",
+    title: "Personal Projects",
+    subtitle: "Project Portfolio",
     pokemonType: "FIRE",
     typeColor: "#EE8130",
     description:
-      "A product-focused tech studio building our own apps — full stack, end to end, from idea to production. I lead engineering and the full product build cycle alongside a co-founder who handles business and design.",
+      "The apps, tools and AI systems I build on my own, full stack and end to end: an autonomous trading system, mobile and macOS apps, and open-source utilities.",
     href: "https://lumen.braunf.com",
     available: true,
     accentColor: "#f59e0b",

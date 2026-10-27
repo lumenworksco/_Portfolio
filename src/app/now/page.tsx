@@ -20,7 +20,7 @@ interface Focus {
 }
 
 const FOCUS: Focus[] = [
-  { label: "Lumen Studio", desc: "Building products end to end with a co-founder.", color: AMBER },
+  { label: "Personal Projects", desc: "Building my own apps and tools end to end.", color: AMBER },
   { label: "Cross-lingual NLP research", desc: "Probing how small LLMs reason across languages.", color: TEAL },
   { label: "CalmCampus", desc: "Shipping features for the student wellness app.", color: PINK },
 ];

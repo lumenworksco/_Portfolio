@@ -637,12 +637,11 @@ export default function PortfolioPage() {
               technical development: data strategy, AI/ML approach, privacy-by-design architecture,
               and GDPR-conscious data handling.
             </TimelineItem>
-            <TimelineItem title="Co-Founder & Lead Engineer" org="Lumen Studio" period="Oct 2023 – Present">
-              Product-focused tech studio building own apps — full stack from idea to production.
-              Engineering lead across the full product build cycle: ideation, technical planning,
-              development, testing, release, and iteration. End-to-end across the stack: back-end
-              services and APIs, front-end experiences, infrastructure, deployments, and
-              performance optimisation.
+            <TimelineItem title="Independent Developer" org="Personal Projects (Lumen Studio)" period="Oct 2023 – Present">
+              Personal projects portfolio: my own apps and tools, built full stack from idea to
+              production. I handle the whole build cycle myself: planning, development, testing,
+              release and iteration, across back-end services and APIs, front-end experiences,
+              infrastructure, deployments and performance.
             </TimelineItem>
           </div>
         </Section>

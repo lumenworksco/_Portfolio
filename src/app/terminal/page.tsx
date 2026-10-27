@@ -71,7 +71,7 @@ function run(
       return [
         BLANK(),
         L("out",   "Florian Braun"),
-        L("muted", "Co-Founder @ Lumen Studio & CalmCampus"),
+        L("muted", "Co-Founder @ CalmCampus"),
         L("muted", "BASc Applied CS · UCLL · Leuven, Belgium"),
         L("muted", "Researching LLMs, NLP, and cross-lingual alignment"),
         BLANK(),
