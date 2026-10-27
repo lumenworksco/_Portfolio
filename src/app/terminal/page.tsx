@@ -145,6 +145,8 @@ function run(
         "velox":        "https://velox.braunf.com",
         "tokn":         "https://tokn.braunf.com",
         "feather":      "https://feather.braunf.com",
+        "silkworm":     "https://silk.braunf.com",
+        "silk":         "https://silk.braunf.com",
       };
       const url = projects[arg];
       if (!url) {
