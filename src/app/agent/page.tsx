@@ -137,6 +137,18 @@ export default function AgentPage() {
     orbRef.current?.focus({ preventScroll: true });
   }, []);
 
+  // Coming back with the browser's back button restores this page exactly as it was left
+  // (bfcache), colour flash included. Clear that state so the orb is usable again.
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return;
+      setLeaving(null);
+      setHovered(null);
+    };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
+
   // Arrow keys browse chapters, Escape returns to the lone orb.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

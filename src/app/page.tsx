@@ -629,6 +629,20 @@ export default function SelectPage() {
     return () => window.removeEventListener("keydown", handler);
   }, [router]);
 
+  // Back/forward cache restores this page mid-selection (other cards dimmed, flash up).
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return;
+      setSelectedId(null);
+      setNavigatingToPokedex(false);
+      setNavigatingToBeats(false);
+      setPhotoFlash(false);
+      setHoveredId(null);
+    };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
+
   const selectedCard = cards.find((c) => c.id === selectedId) ?? null;
 
   const handleSelect = useCallback(
