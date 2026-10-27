@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Renderer, Program, Mesh, Triangle } from "ogl";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { BALL_FRAG, BALL_VERT } from "./ballShader";
+import { DEFAULT_PALETTE, type Palette } from "@/data/lifeChapters";
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const smoothstep = (a: number, b: number, x: number) => {
@@ -30,14 +31,18 @@ function FallbackBall({ className }: { className?: string }) {
 }
 
 /** A soft, iridescent ball that drifts on its own, leans toward the cursor and pops when clicked. */
-export default function Ball({ className }: { className?: string }) {
+export default function Ball({ className, palette = DEFAULT_PALETTE }: { className?: string; palette?: Palette }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
   const [failed, setFailed] = useState(false);
   const failRef = useRef<() => void>(() => {});
+  const paletteRef = useRef<Palette>(palette);
   useEffect(() => {
     failRef.current = () => setFailed(true);
   }, []);
+  useEffect(() => {
+    paletteRef.current = palette;
+  }, [palette]);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -70,6 +75,10 @@ export default function Ball({ className }: { className?: string }) {
         uMouse: { value: [5, 5] },
         uMouseAmt: { value: 0 },
         uPulse: { value: 0 },
+        uBlue: { value: [...DEFAULT_PALETTE.blue] },
+        uPeri: { value: [...DEFAULT_PALETTE.peri] },
+        uLav: { value: [...DEFAULT_PALETTE.lav] },
+        uPeach: { value: [...DEFAULT_PALETTE.peach] },
       },
     });
     if (!gl.getProgramParameter(program.program, gl.LINK_STATUS)) {
@@ -130,6 +139,13 @@ export default function Ball({ className }: { className?: string }) {
     document.documentElement.addEventListener("mouseleave", onLeave);
     canvas.addEventListener("webglcontextlost", onLost);
 
+    const cur: Palette = {
+      blue: [...DEFAULT_PALETTE.blue],
+      peri: [...DEFAULT_PALETTE.peri],
+      lav: [...DEFAULT_PALETTE.lav],
+      peach: [...DEFAULT_PALETTE.peach],
+    };
+    const keys = ["blue", "peri", "lav", "peach"] as const;
     let phase = 0;
     let raf = 0;
     let last = performance.now();
@@ -155,7 +171,17 @@ export default function Ball({ className }: { className?: string }) {
         cursor.amt = lerp(cursor.amt, 0, k * 0.9);
       }
 
+      // Ease toward the current chapter's colours so changes feel like a slow bloom.
+      const to = paletteRef.current;
+      for (const key of keys) {
+        for (let i = 0; i < 3; i++) cur[key][i] = lerp(cur[key][i], to[key][i], reduced ? 1 : k * 0.55);
+      }
+
       const u = program.uniforms;
+      u.uBlue.value = cur.blue;
+      u.uPeri.value = cur.peri;
+      u.uLav.value = cur.lav;
+      u.uPeach.value = cur.peach;
       u.uTime.value = phase;
       u.uPointer.value = [pointer.x, pointer.y];
       u.uMouse.value = [cursor.x, cursor.y];

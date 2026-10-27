@@ -16,6 +16,10 @@ uniform vec2  uPointer; // -1..1 across the window, y up
 uniform vec2  uMouse;   // cursor in ball space
 uniform float uMouseAmt;
 uniform float uPulse;   // 0..1, a soft "pop" after a click
+uniform vec3  uBlue;    // palette: the four colours the swirls blend between
+uniform vec3  uPeri;
+uniform vec3  uLav;
+uniform vec3  uPeach;
 
 out vec4 fragColor;
 
@@ -118,10 +122,10 @@ void main() {
     float fine = snoise(d * 1.7 + warp * 0.9 + vec3(0.0, t * 0.05, 0.0));
     float veil = snoise(d * 2.6 + warp * 1.2 + vec3(t * 0.03, 0.0, 3.0));
 
-    vec3 blue  = vec3(0.22, 0.46, 0.86);
-    vec3 peri  = vec3(0.64, 0.71, 0.96);
-    vec3 lav   = vec3(0.64, 0.60, 0.88);
-    vec3 peach = vec3(1.00, 0.84, 0.86);
+    vec3 blue  = uBlue;
+    vec3 peri  = uPeri;
+    vec3 lav   = uLav;
+    vec3 peach = uPeach;
 
     vec3 c = mix(peri, blue, smoothstep(-0.45, 0.95, f1));
     c = mix(c, lav, smoothstep(0.4, -0.8, f1) * 0.7);
@@ -160,14 +164,14 @@ void main() {
   // ---- light around and under the ball (this sits on a dark page) ----
   float dOut = max(rr - 1.0, 0.0);
   float ang = atan(p.y, p.x);
-  vec3 glowC = mix(vec3(0.40, 0.52, 1.0), vec3(0.95, 0.70, 0.90), 0.5 + 0.5 * sin(t * 0.15 + ang));
+  vec3 glowC = mix(mix(uBlue, vec3(1.0), 0.42), mix(uPeach, uLav, 0.5), 0.5 + 0.5 * sin(t * 0.15 + ang));
   float bloom = (exp(-dOut * 3.4) * 0.34 + exp(-dOut * 1.15) * 0.16) * (1.0 - inside);
 
   vec2 sc = vec2(uv.x / 0.58, (uv.y + 0.84 + bob * 0.4) / 0.1);
   float pool = exp(-dot(sc, sc) * 1.15) * (0.4 - bob * 2.0);
   float rip = (0.55 + 0.45 * fract(t * 0.12));
   float ripple = exp(-pow((length(sc) - rip * 1.05) * 4.5, 2.0)) * (1.0 - rip) * 0.28;
-  vec3 poolC = vec3(0.50, 0.58, 1.0);
+  vec3 poolC = mix(uBlue, vec3(1.0), 0.45);
 
   float edge = 1.0 - smoothstep(0.72, 1.0, length(uv));
   float aGlow = (bloom + pool + ripple) * edge;
