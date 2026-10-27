@@ -47,6 +47,19 @@ const NODES: { id: string; label: string; q: string }[] = [
   { id: "contact", label: "contact", q: "How can I contact him?" },
 ];
 
+// Which silhouette the orb morphs into for each topic (see sdf shapes in orbShader.ts).
+// 0 sphere, 1 diamond, 2 square, 3 star, 4 hexagon, 5 heart, 6 ring, 7 triangle, 8 envelope
+const SHAPE_BY_TOPIC: Record<string, number> = {
+  education: 1, certifications: 1,
+  experience: 2, iot: 2,
+  research: 3, hackathons: 3,
+  projects: 4, leadership: 4,
+  calmcampus: 5,
+  japanese: 6, languages: 6,
+  skills: 7, velox: 7,
+  contact: 8,
+};
+
 const nodePos = (i: number) => {
   const a = (-90 + (360 / NODES.length) * i) * (Math.PI / 180);
   return { x: 50 + 47 * Math.cos(a), y: 50 + 43 * Math.sin(a) };
@@ -315,6 +328,7 @@ export default function AgentPage() {
             state={orbState}
             pulse={pulse}
             typing={typing}
+            shape={phase === "thinking" || !reply?.topicId ? 0 : SHAPE_BY_TOPIC[reply.topicId.replace(/^(nav|dest):/, "")] ?? 0}
             className="absolute left-1/2 top-1/2 h-[clamp(210px,38vh,420px)] w-[clamp(210px,38vh,420px)] -translate-x-1/2 -translate-y-1/2"
           />
           <Constellation

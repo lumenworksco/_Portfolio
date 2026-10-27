@@ -10,6 +10,8 @@ interface Props {
   state: OrbState;
   pulse: number;
   typing?: number;
+  /** 0 circle, 1 diamond, 2 square, 3 star, 4 hexagon, 5 heart, 6 ring, 7 triangle, 8 envelope */
+  shape?: number;
   className?: string;
   /** Called if WebGL2 or the shader is unavailable, so the caller can fall back. */
   onFail: () => void;
@@ -32,14 +34,19 @@ const LOOKS: Record<OrbState, Look> = {
   speaking: { energy: 0.62, spin: 0.7, think: 0, a: [0.02, 0.1, 0.18], b: [0.1, 0.7, 0.85], c: [0.8, 1.0, 0.95] },
 };
 
+const SHAPES = 9;
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+const smoothstep = (a: number, b: number, x: number) => {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+};
 const lerp3 = (cur: V3, to: V3, t: number) => {
   cur[0] = lerp(cur[0], to[0], t);
   cur[1] = lerp(cur[1], to[1], t);
   cur[2] = lerp(cur[2], to[2], t);
 };
 
-export default function OrbGL({ state, pulse, typing = 0, className, onFail }: Props) {
+export default function OrbGL({ state, pulse, typing = 0, shape = 0, className, onFail }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
 
@@ -48,12 +55,14 @@ export default function OrbGL({ state, pulse, typing = 0, className, onFail }: P
   const pulseRef = useRef(0);
   const lastPulse = useRef(pulse);
   const failRef = useRef(onFail);
+  const shapeRef = useRef(shape);
 
   useEffect(() => {
     stateRef.current = state;
     typingRef.current = typing;
     failRef.current = onFail;
-  }, [state, typing, onFail]);
+    shapeRef.current = shape;
+  }, [state, typing, onFail, shape]);
   useEffect(() => {
     if (pulse !== lastPulse.current) {
       lastPulse.current = pulse;
@@ -95,6 +104,11 @@ export default function OrbGL({ state, pulse, typing = 0, className, onFail }: P
         uColA: { value: [...LOOKS.idle.a] },
         uColB: { value: [...LOOKS.idle.b] },
         uColC: { value: [...LOOKS.idle.c] },
+        uMouse: { value: [5, 5] },
+        uMouseAmt: { value: 0 },
+        uWa: { value: [1, 0, 0] },
+        uWb: { value: [0, 0, 0] },
+        uWc: { value: [0, 0, 0] },
       },
     });
     if (!gl.getProgramParameter(program.program, gl.LINK_STATUS)) {
@@ -119,11 +133,40 @@ export default function OrbGL({ state, pulse, typing = 0, className, onFail }: P
     ro.observe(wrap);
 
     const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+    // Cursor in orb space: (-1..1) across the canvas, centred on the orb.
+    const cursor = { cx: 0, cy: 0, has: false, x: 5, y: 5, amt: 0 };
+    const toOrbSpace = (clientX: number, clientY: number) => {
+      const rect = canvas.getBoundingClientRect();
+      const half = rect.width / 2 || 1;
+      return {
+        x: (clientX - (rect.left + half)) / half,
+        y: -(clientY - (rect.top + rect.height / 2)) / half,
+      };
+    };
     const onMove = (e: PointerEvent) => {
       pointer.tx = (e.clientX / window.innerWidth - 0.5) * 2;
       pointer.ty = -(e.clientY / window.innerHeight - 0.5) * 2;
+      cursor.cx = e.clientX;
+      cursor.cy = e.clientY;
+      cursor.has = true;
+    };
+    const onDown = (e: PointerEvent) => {
+      const m = toOrbSpace(e.clientX, e.clientY);
+      if (Math.hypot(m.x, m.y) < 1.2) pulseRef.current = 1;
+    };
+    const onUp = (e: PointerEvent) => {
+      if (e.pointerType === "touch") cursor.has = false;
+    };
+    const onLeave = () => {
+      cursor.has = false;
     };
     window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerdown", onDown, { passive: true });
+    window.addEventListener("pointerup", onUp, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onLeave);
+    window.addEventListener("blur", onLeave);
+
+    const weights: number[] = Array.from({ length: SHAPES }, (_, i) => (i === 0 ? 1 : 0));
 
     const onLost = (e: Event) => {
       e.preventDefault();
@@ -171,6 +214,35 @@ export default function OrbGL({ state, pulse, typing = 0, className, onFail }: P
       u.uColB.value = cur.b;
       u.uColC.value = cur.c;
 
+      // Silhouette morph: ease every shape weight toward a one-hot target (no pops mid-transition).
+      const shapeTarget = Math.max(0, Math.min(SHAPES - 1, Math.round(shapeRef.current)));
+      const km = 1 - Math.pow(0.02, dt);
+      let sum = 0;
+      for (let i = 0; i < SHAPES; i++) {
+        weights[i] = lerp(weights[i], i === shapeTarget ? 1 : 0, reduced ? 1 : km);
+        sum += weights[i];
+      }
+      const inv = sum > 0 ? 1 / sum : 1;
+      u.uWa.value = [weights[0] * inv, weights[1] * inv, weights[2] * inv];
+      u.uWb.value = [weights[3] * inv, weights[4] * inv, weights[5] * inv];
+      u.uWc.value = [weights[6] * inv, weights[7] * inv, weights[8] * inv];
+
+      // Cursor: felt within roughly one orb-width, fades away with distance. Off for reduced motion.
+      if (cursor.has && !reduced) {
+        const m = toOrbSpace(cursor.cx, cursor.cy);
+        const d = Math.hypot(m.x, m.y);
+        const clampLen = Math.min(1, 3 / Math.max(d, 1e-4));
+        const tx = m.x * clampLen;
+        const ty = m.y * clampLen;
+        cursor.x = cursor.x > 4 ? tx : lerp(cursor.x, tx, k * 1.1);
+        cursor.y = cursor.y > 4 ? ty : lerp(cursor.y, ty, k * 1.1);
+        cursor.amt = lerp(cursor.amt, 1 - smoothstep(0.55, 1.6, d), k * 0.8);
+      } else {
+        cursor.amt = lerp(cursor.amt, 0, k * 0.9);
+      }
+      u.uMouse.value = [cursor.x, cursor.y];
+      u.uMouseAmt.value = cursor.amt;
+
       renderer.render({ scene: mesh });
       raf = requestAnimationFrame(frame);
     };
@@ -180,6 +252,10 @@ export default function OrbGL({ state, pulse, typing = 0, className, onFail }: P
       cancelAnimationFrame(raf);
       ro.disconnect();
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("blur", onLeave);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
       canvas.removeEventListener("webglcontextlost", onLost);
       if (canvas.parentNode === wrap) wrap.removeChild(canvas);
       gl.getExtension("WEBGL_lose_context")?.loseContext();

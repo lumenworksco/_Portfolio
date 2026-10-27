@@ -8,6 +8,7 @@ interface Props {
   state: OrbState;
   pulse: number;
   typing?: number;
+  shape?: number;
   className?: string;
 }
 
