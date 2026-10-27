@@ -1,4 +1,4 @@
-// Soft iridescent ball: domain-warped pastel flow on a lit sphere, over a white page.
+// Soft iridescent glass ball: domain-warped pastel flow on a lit sphere, glowing on a dark page.
 
 export const BALL_VERT = `#version 300 es
 in vec2 position;
@@ -75,21 +75,22 @@ mat2 rot(float a) {
   return mat2(c, -s, s, c);
 }
 
+float hash2(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+
 void main() {
   vec2 uv = (gl_FragCoord.xy / uRes) * 2.0 - 1.0;
   float t = uTime;
 
-  // gentle float; the shadow breathes with it
-  float bob = sin(t * 0.7) * 0.022;
+  float bob = sin(t * 0.7) * 0.02;
   vec2 centre = vec2(uPointer.x * 0.02, bob + uPointer.y * 0.014);
   vec2 toM = uMouse - uv;
   float md = length(toM);
   float infl = exp(-md * md * 2.6) * uMouseAmt;
 
-  float R = 0.58 * (1.0 + uPulse * 0.04);
-  vec2 p = uv - centre - toM * infl * 0.08;
+  float R = 0.54 * (1.0 + uPulse * 0.04);
+  vec2 p = uv - centre - toM * infl * 0.07;
   float rr = length(p) / R;
-  float inside = 1.0 - smoothstep(0.94, 1.0, rr);
+  float inside = 1.0 - smoothstep(0.988, 1.0, rr);
 
   vec3 col = vec3(0.0);
   float alpha = 0.0;
@@ -97,6 +98,7 @@ void main() {
   if (rr < 1.02) {
     float z = sqrt(max(0.0, 1.0 - rr * rr));
     vec3 n = vec3(p / R, z);
+    vec3 nn = normalize(n);
 
     vec3 d = n;
     d.xz *= rot(t * 0.07 + uPointer.x * 0.35);
@@ -112,48 +114,73 @@ void main() {
     );
     float f1 = snoise(q * 1.0 + warp * 1.1) * 1.15 + n.x * 0.5 - n.y * 0.1;
     float f2 = snoise(q * 0.9 + vec3(4.0, 1.0, 2.0) - warp * 1.0) * 1.15 - n.x * 0.55 + n.y * 0.5;
+    // fine, silky flow lines so the surface reads as material instead of blur
+    float fine = snoise(d * 1.7 + warp * 0.9 + vec3(0.0, t * 0.05, 0.0));
+    float veil = snoise(d * 2.6 + warp * 1.2 + vec3(t * 0.03, 0.0, 3.0));
 
-    vec3 blue  = vec3(0.27, 0.51, 0.84);
-    vec3 peri  = vec3(0.71, 0.76, 0.94);
-    vec3 lav   = vec3(0.67, 0.64, 0.86);
-    vec3 peach = vec3(0.99, 0.88, 0.89);
+    vec3 blue  = vec3(0.22, 0.46, 0.86);
+    vec3 peri  = vec3(0.64, 0.71, 0.96);
+    vec3 lav   = vec3(0.64, 0.60, 0.88);
+    vec3 peach = vec3(1.00, 0.84, 0.86);
 
     vec3 c = mix(peri, blue, smoothstep(-0.45, 0.95, f1));
     c = mix(c, lav, smoothstep(0.4, -0.8, f1) * 0.7);
     c = mix(c, peach, smoothstep(-0.15, 0.95, f2) * 0.95);
+    c *= 1.0 + fine * 0.07 + veil * 0.02;
 
-    // soft light from the top left, a little cooler and deeper to the bottom right
+    // soft key light from the top left
     vec3 L = normalize(vec3(-0.5 + uPointer.x * 0.25, 0.6 + uPointer.y * 0.25, 0.65));
-    float diff = dot(normalize(n), L) * 0.5 + 0.5;
-    c *= 0.84 + 0.22 * diff;
-    c = mix(c, c * vec3(0.9, 0.93, 1.05), pow(1.0 - diff, 2.0) * 0.6);
+    float diff = dot(nn, L) * 0.5 + 0.5;
+    c *= 0.8 + 0.3 * diff;
+    c = mix(c, c * vec3(0.82, 0.88, 1.1), pow(1.0 - diff, 2.0) * 0.65);
 
-    // milky edge and a faint sheen
-    c = mix(c, vec3(0.9, 0.91, 0.99), pow(1.0 - z, 2.0) * 0.62);
-    vec3 H = normalize(L + vec3(0.0, 0.0, 1.0));
-    c += vec3(1.0) * pow(max(dot(normalize(n), H), 0.0), 18.0) * 0.1;
+    // warm bounce from below
+    c += peach * pow(max(-nn.y, 0.0), 2.0) * 0.1;
+
+    // pearly thin-film iridescence toward the edge
+    float fres = pow(1.0 - z, 2.2);
+    vec3 film = 0.5 + 0.5 * cos(6.28318 * (vec3(0.0, 0.33, 0.67) + fres * 1.1 + nn.y * 0.25 + t * 0.02));
+    c = mix(c, mix(c, film, 0.8), fres * 0.5);
+    c = mix(c, vec3(0.93, 0.94, 1.0), pow(1.0 - z, 3.2) * 0.4);
+
+    // glass: window reflection plus a tiny hotspot, and a cool rim light low right
+    vec2 hp = vec2(nn.x + 0.40, nn.y - 0.50);
+    float win = smoothstep(0.36, 0.1, length(hp * vec2(1.0, 1.55)));
+    c = mix(c, vec3(1.0), win * 0.34);
+    c += smoothstep(0.1, 0.0, length(vec2(nn.x + 0.48, nn.y - 0.56))) * 0.55;
+    c += vec3(0.55, 0.68, 1.0) * pow(max(dot(nn, normalize(vec3(0.72, -0.5, 0.48))), 0.0), 18.0) * 0.22;
+
+    // a hairline of light right on the silhouette keeps the edge crisp
+    c += vec3(0.8, 0.85, 1.0) * smoothstep(0.93, 0.995, rr) * 0.22;
 
     col = c * inside;
     alpha = inside;
   }
 
-  // soft contact shadow on the white page
-  vec2 sc = vec2(uv.x / 0.5, (uv.y + 0.76 + bob * 0.4) / 0.1);
-  float sh = exp(-dot(sc, sc) * 1.3) * (0.34 - bob * 2.2);
-  vec3 shCol = vec3(0.58, 0.64, 0.93);
-  // faint bluish bloom around the ball
-  float bloom = exp(-max(rr - 1.0, 0.0) * 4.0) * 0.09 * (1.0 - inside);
+  // ---- light around and under the ball (this sits on a dark page) ----
+  float dOut = max(rr - 1.0, 0.0);
+  float ang = atan(p.y, p.x);
+  vec3 glowC = mix(vec3(0.40, 0.52, 1.0), vec3(0.95, 0.70, 0.90), 0.5 + 0.5 * sin(t * 0.15 + ang));
+  float bloom = (exp(-dOut * 3.4) * 0.34 + exp(-dOut * 1.15) * 0.16) * (1.0 - inside);
 
-  float outA = sh + bloom;
-  vec3 outC = shCol * sh + vec3(0.62, 0.68, 0.95) * bloom;
-  col += outC * (1.0 - inside);
-  alpha = alpha + outA * (1.0 - inside);
+  vec2 sc = vec2(uv.x / 0.58, (uv.y + 0.84 + bob * 0.4) / 0.1);
+  float pool = exp(-dot(sc, sc) * 1.15) * (0.4 - bob * 2.0);
+  float rip = (0.55 + 0.45 * fract(t * 0.12));
+  float ripple = exp(-pow((length(sc) - rip * 1.05) * 4.5, 2.0)) * (1.0 - rip) * 0.28;
+  vec3 poolC = vec3(0.50, 0.58, 1.0);
 
-  // fade everything but the ball to nothing before the canvas edge
-  float edge = 1.0 - smoothstep(0.78, 1.0, length(uv));
-  col *= mix(1.0, edge, 1.0 - inside);
-  alpha *= mix(1.0, edge, 1.0 - inside);
+  float edge = 1.0 - smoothstep(0.72, 1.0, length(uv));
+  float aGlow = (bloom + pool + ripple) * edge;
+  vec3 cGlow = (glowC * bloom + poolC * (pool + ripple)) * edge;
+  col += cGlow * (1.0 - inside);
+  alpha += aGlow * (1.0 - inside);
 
-  fragColor = vec4(col, clamp(alpha, 0.0, 1.0));
+  // dither so the long soft falloffs never show banding
+  float dn = (hash2(gl_FragCoord.xy + fract(t) * 17.0) - 0.5) * (2.0 / 255.0);
+  float on = step(0.002, alpha);
+  alpha = clamp(alpha + dn * on, 0.0, 1.0);
+  col = min(max(col + dn * on, 0.0), vec3(alpha));
+
+  fragColor = vec4(col, alpha);
 }
 `;
