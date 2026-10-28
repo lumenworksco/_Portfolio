@@ -98,8 +98,13 @@ export const CHAPTERS: Chapter[] = [
       },
       {
         title: "Japanese Language Program, KU Leuven",
-        meta: "Feb – Dec 2026",
+        meta: "Feb – Jun 2026",
         text: "Currently at JLPT N5 level, and the language behind his main research.",
+      },
+      {
+        title: "Research student, University of Tsukuba",
+        meta: "Oct 2026 –",
+        text: "A non-degree research enrolment in an NLP lab in Japan, working on Japanese pragmatics and LLM evaluation ahead of a Master of Engineering there from April 2028.",
       },
       {
         title: "Finance, Yale · Linear Algebra, Korea University",

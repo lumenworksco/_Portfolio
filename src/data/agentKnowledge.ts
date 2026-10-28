@@ -56,14 +56,14 @@ export const TOPICS: Topic[] = [
     id: "education",
     keywords: ["study", "studies", "education", "degree", "university", "school", "ucll", "ku leuven", "harvard", "yale", "cs50", "student", "college", "korea", "baccalaureate"],
     answer:
-      "He is doing a BASc in Applied Computer Science at UCLL (2024 to 2027), focused on software engineering, AI and data engineering. Before that he spent a year on a BSc in Computer Science at KU Leuven and took Harvard's CS50 online. Alongside the degree: a Japanese language program at KU Leuven, a non-degree finance program at Yale, and a summer linear algebra program at Korea University. He finished school with the European Baccalaureate at the European School of Luxembourg 1.",
+      "He is doing a BASc in Applied Computer Science at UCLL (September 2024 to June 2027), focused on software engineering, AI and data engineering. Before that he spent a year on a BSc in Computer Science at KU Leuven and took Harvard's CS50 online. Alongside the degree: a Japanese language program at KU Leuven, a non-degree finance program at Yale, and a summer linear algebra program at Korea University. He finished school with the European Baccalaureate at the European School of Luxembourg 1.",
     followUps: ["What languages does he speak?", "What are his skills?"],
   },
   {
     id: "experience",
     keywords: ["experience", "work", "job", "career", "internship", "intern", "hire", "hiring", "employment", "role", "roles", "worked", "available", "looking", "opportunity", "opportunities"],
     answer:
-      "Right now he is part of the IT team at NEXT Leuven (since May 2026), one of Belgium's largest student entrepreneurship organisations, and Co-Founder & CTO of CalmCampus (since January 2026). Since October 2023 he has also been building his own apps as an independent developer. He is open to research collaborations and engineering opportunities, so internship conversations are welcome.",
+      "Right now he is Information Manager in the IT team at NEXT Leuven (since May 2026), one of Belgium's largest student entrepreneurship organisations, Co-Founder & CTO of CalmCampus (since January 2026), and, since October 2026, a research student in an NLP lab at the University of Tsukuba in Japan. Since October 2023 he has also been building his own apps as an independent developer. He is open to research collaborations and engineering opportunities, so internship conversations are welcome.",
     links: [{ label: "Get in touch", href: "/contact" }],
     followUps: ["Tell me about CalmCampus", "How can I contact him?", "What are his skills?"],
   },
@@ -106,7 +106,7 @@ export const TOPICS: Topic[] = [
     id: "japanese",
     keywords: ["japanese", "japan", "nihongo", "jlpt", "wanikani", "kanji", "why japanese"],
     answer:
-      "Japanese runs through several parts of his life: he is in the Japanese Language Program at KU Leuven (February to December 2026), is at JLPT N5 level, tracks his kanji progress in WaniKani, built a Japanese learning app and a Go app with a Japanese interface, and his main research probes Japanese-English bilingual language models.",
+      "Japanese runs through several parts of his life: he took the Japanese Language Program at KU Leuven (February to June 2026), is at JLPT N5 level, has been a research student in an NLP lab at the University of Tsukuba since October 2026, tracks his kanji progress in WaniKani, built a Japanese learning app and a Go app with a Japanese interface, and his main research probes Japanese-English bilingual language models.",
     links: [{ label: "Nihongo app", href: "https://nihongo.braunf.com", external: true }],
     followUps: ["Tell me about his research", "What are his hobbies?"],
   },

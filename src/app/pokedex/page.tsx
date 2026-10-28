@@ -22,6 +22,7 @@ import {
   achievements,
   typeColors,
   type Achievement,
+  POKEDEX_UPDATED_FALLBACK,
   type Category,
 } from "@/data/achievements";
 import { useSeenAchievements } from "@/lib/useSeenAchievements";
@@ -48,6 +49,12 @@ function setTabInUrl(tab: Tab) {
   window.history.replaceState(null, "", url);
   window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
+
+// ─── When the Pokédex data last changed ────────────────────────────────────────
+const UPDATED_ISO = process.env.NEXT_PUBLIC_POKEDEX_UPDATED || POKEDEX_UPDATED_FALLBACK;
+const UPDATED_LABEL = new Date(`${UPDATED_ISO}T12:00:00Z`)
+  .toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+  .toUpperCase();
 
 // ─── Filter categories ─────────────────────────────────────────────────────────
 const CATEGORIES: { id: Category | "all"; label: string }[] = [
@@ -632,6 +639,9 @@ export default function PokedexPage() {
               />
               <p style={{ fontSize: "9px", fontFamily: PIXEL, color: "rgba(28,28,28,0.5)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
                 Menu
+              </p>
+              <p style={{ marginLeft: "auto", fontSize: "8px", fontFamily: PIXEL, color: "rgba(28,28,28,0.5)", letterSpacing: "0.08em" }}>
+                UPDATED <time dateTime={UPDATED_ISO}>{UPDATED_LABEL}</time>
               </p>
             </div>
             <div role="tablist" aria-label="Pokédex sections" className="grid grid-cols-1 sm:grid-cols-2 gap-px">

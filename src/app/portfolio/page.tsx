@@ -616,8 +616,8 @@ export default function PortfolioPage() {
         <Section id="experience" className="mb-14">
           <SectionHeading>Experience</SectionHeading>
           <div className="flex flex-col gap-7">
-            <TimelineItem title="Information Technology" org="NEXT Leuven" period="May 2026 – Present">
-              Part of the IT team at NEXT Leuven, one of Belgium&apos;s largest student
+            <TimelineItem title="Information Manager" org="NEXT Leuven" period="May 2026 – Present">
+              Information Manager in the IT team at NEXT Leuven, one of Belgium&apos;s largest student
               entrepreneurship organisations — connecting students with startups, scale-ups,
               and industry through flagship events like the Next Level Challenge and MedTech
               Convention. Manages and maintains the technical infrastructure and internal
@@ -713,7 +713,10 @@ export default function PortfolioPage() {
             <TimelineItem title="BASc Applied Computer Science" org="UCLL University of Applied Sciences" period="2024 – 2027">
               Main degree — software engineering, AI, data engineering.
             </TimelineItem>
-            <TimelineItem title="Japanese Language Program" org="KU Leuven" period="Feb 2026 – Dec 2026" />
+            <TimelineItem title="Research Student, NLP Lab" org="University of Tsukuba" period="Oct 2026 – Present">
+              Non-degree research enrolment (研究生) working on Japanese pragmatics and LLM evaluation, ahead of a Master of Engineering there from April 2028.
+            </TimelineItem>
+            <TimelineItem title="Japanese Language Program" org="KU Leuven" period="Feb 2026 – Jun 2026" />
             <TimelineItem title="Finance (Non-Degree Program)" org="Yale University" period="Jan 2026 – Jun 2026" />
             <TimelineItem title="CS50: Introduction to Computer Science" org="Harvard University" period="Sep 2024 – Dec 2024" />
             <TimelineItem title="BSc Computer Science" org="KU Leuven" period="Sep 2023 – Sep 2024" />

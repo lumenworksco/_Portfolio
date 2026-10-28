@@ -25,6 +25,9 @@ export const typeColors: Record<PokemonType, string> = {
   NORMAL: "#A8A878",
 };
 
+/** Fallback for the "last updated" date; the real value comes from git at build time (see next.config.ts). */
+export const POKEDEX_UPDATED_FALLBACK = "2026-10-28";
+
 export type Category = "founding" | "hackathon" | "award" | "education" | "cert" | "research" | "role";
 
 export interface Achievement {
@@ -135,7 +138,7 @@ export const achievements: Achievement[] = [
     id: "008",
     name: "BASc Applied Computer Science",
     org: "UCLL University of Applied Sciences",
-    period: "2024 – 2027",
+    period: "Sep 2024 – Jun 2027",
     category: "education",
     types: ["WATER"],
     icon: GraduationCap,
@@ -172,7 +175,7 @@ export const achievements: Achievement[] = [
     id: "011",
     name: "Japanese Language Program",
     org: "KU Leuven",
-    period: "Feb 2026 – Dec 2026",
+    period: "Feb 2026 – Jun 2026",
     category: "education",
     types: ["WATER", "NORMAL"],
     icon: Languages,
@@ -202,8 +205,8 @@ export const achievements: Achievement[] = [
     icon: Music,
     description: "7-year classical guitar and theory certificate from the Luxembourg Conservatoire.",
     detail:
-      "Completed a 7-year classical guitar and music theory programme at the Conservatoire de la Ville de Luxembourg, earning a formal Certificate in Guitar & Music Theory. Studied classical technique, harmony, counterpoint, and music history — a discipline that shaped analytical thinking and long-term creative discipline.",
-    highlight: "Certificate",
+      "Completed a 7-year classical guitar and music theory programme at the Conservatoire de la Ville de Luxembourg, earning a formal Certificate in Guitar & Music Theory with the mention Très Bien. Studied classical technique, harmony, counterpoint, and music history — a discipline that shaped analytical thinking and long-term creative discipline.",
+    highlight: "Mention Très Bien",
   },
   {
     id: "014",
@@ -222,7 +225,7 @@ export const achievements: Achievement[] = [
     id: "015",
     name: "Developing LLM Applications with LangChain",
     org: "DataCamp",
-    period: "2025",
+    period: "Mar 2026",
     category: "cert",
     types: ["GHOST", "PSYCHIC"],
     icon: Link2,
@@ -234,7 +237,7 @@ export const achievements: Achievement[] = [
     id: "016",
     name: "Intermediate Deep Learning with PyTorch",
     org: "DataCamp",
-    period: "2025",
+    period: "Mar 2026",
     category: "cert",
     types: ["GHOST", "PSYCHIC"],
     icon: Bot,
@@ -246,7 +249,7 @@ export const achievements: Achievement[] = [
     id: "017",
     name: "AI Fundamentals",
     org: "DataCamp",
-    period: "2025",
+    period: "Oct 2025",
     category: "cert",
     types: ["GHOST"],
     icon: Lightbulb,
@@ -258,7 +261,7 @@ export const achievements: Achievement[] = [
     id: "018",
     name: "GitHub Foundations",
     org: "DataCamp",
-    period: "2025",
+    period: "Oct 2025",
     category: "cert",
     types: ["GHOST"],
     icon: GitBranch,
@@ -307,14 +310,14 @@ export const achievements: Achievement[] = [
     id: "022",
     name: "Cross-Lingual LLM Paper",
     org: "Independent Research",
-    period: "2026",
+    period: "Apr 2026",
     category: "research",
     types: ["PSYCHIC", "DRAGON"],
     icon: BookMarked,
     description: "Research paper on cross-lingual alignment and pragmatic reasoning in bilingual LLMs.",
     detail:
       "Independent research paper: \"Interpretable Cross-Lingual Alignment in Small Language Models: Probing Cultural and Pragmatic Reasoning in Japanese-English Bilingual LLMs.\" Investigates how small language models encode cross-lingual alignment, focusing on cultural and pragmatic reasoning in Japanese-English bilingual settings.",
-    highlight: "Published 2026",
+    highlight: "Published Apr 2026",
   },
   {
     id: "023",
@@ -332,14 +335,14 @@ export const achievements: Achievement[] = [
   {
     id: "024",
     name: "NEXT Leuven",
-    org: "Information Technology",
+    org: "Information Manager",
     period: "May 2026 – Present",
     category: "role",
     types: ["ELECTRIC", "NORMAL"],
     icon: Server,
-    description: "IT team member powering the tech infrastructure behind Belgium's largest student entrepreneurship organisation.",
+    description: "Information Manager in the IT team powering the tech infrastructure behind Belgium's largest student entrepreneurship organisation.",
     detail:
-      "Part of the IT team at NEXT Leuven, one of Belgium's largest student entrepreneurship organisations — connecting students with startups, scale-ups, and industry through flagship events like the Next Level Challenge and MedTech Convention. Manages and maintains the technical infrastructure and internal tooling powering operations across large-scale student initiatives, from 24-hour hackathons to professional industry conventions.",
+      "Information Manager in the IT team at NEXT Leuven, one of Belgium's largest student entrepreneurship organisations — connecting students with startups, scale-ups, and industry through flagship events like the Next Level Challenge and MedTech Convention. Manages and maintains the technical infrastructure and internal tooling powering operations across large-scale student initiatives, from 24-hour hackathons to professional industry conventions.",
   },
   {
     id: "025",
@@ -455,7 +458,7 @@ export const achievements: Achievement[] = [
     id: "036",
     name: "Data Engineer",
     org: "DataCamp",
-    period: "2025",
+    period: "May 2026",
     category: "cert",
     types: ["GHOST", "WATER"],
     icon: Database,
@@ -467,7 +470,7 @@ export const achievements: Achievement[] = [
     id: "037",
     name: "Python Data Associate",
     org: "DataCamp",
-    period: "2025",
+    period: "May 2026",
     category: "cert",
     types: ["GHOST", "WATER"],
     icon: FileSpreadsheet,
@@ -498,5 +501,55 @@ export const achievements: Achievement[] = [
     description: "First year of Computer Science studies at KU Leuven before transferring to UCLL.",
     detail:
       "Bachelor of Science in Computer Science at KU Leuven, Sep 2023 – Sep 2024, before continuing the degree at UC Leuven-Limburg (UCLL). Built the foundational CS coursework — programming, algorithms, and systems — that carried into the BASc at UCLL.",
+  },
+  {
+    id: "040",
+    name: "University of Tsukuba",
+    org: "Research Student, NLP Lab",
+    period: "Oct 2026 – Present",
+    category: "education",
+    types: ["WATER", "PSYCHIC"],
+    icon: Languages,
+    description: "Non-degree research student (研究生) in an NLP lab at the University of Tsukuba, Japan.",
+    detail:
+      "Non-degree research enrolment (研究生) in the NLP lab of Prof. Takehito Utsuro at the University of Tsukuba, admitted following the lab's mathematics and programming screening. Works on Japanese pragmatics and LLM evaluation ahead of entry to the Master of Engineering in Intelligent and Mechanical Interaction Systems in April 2028.",
+    highlight: "Master's entry Apr 2028",
+  },
+  {
+    id: "041",
+    name: "Excess Separability Paper",
+    org: "Independent Research",
+    period: "Aug 2026",
+    category: "research",
+    types: ["PSYCHIC", "DRAGON"],
+    icon: Eye,
+    description: "Nuisance-controlled residual-stream probing for detecting benchmark contamination.",
+    detail:
+      "Independent research paper: \"Excess Separability: Nuisance-Controlled Residual-Stream Probing for Benchmark Contamination Detection.\" Shows that the natural way of reading contamination off a linear probe on internal activations does not work, and specifies a protocol that survives measurement: a depth-profile contrast against a level-matched placebo, tested with a label-permutation null. Preprint on arXiv, with the implementation and audits released.",
+    highlight: "arXiv · Aug 2026",
+  },
+  {
+    id: "042",
+    name: "Data Scientist",
+    org: "DataCamp",
+    period: "May 2026",
+    category: "cert",
+    types: ["GHOST", "WATER"],
+    icon: BarChart3,
+    description: "DataCamp certification in data science, machine learning and statistics with Python.",
+    detail:
+      "Data Scientist certification from DataCamp (certified 10 May 2026), covering machine learning, statistics, Python and data analysis. One of four DataCamp certifications earned in May 2026.",
+  },
+  {
+    id: "043",
+    name: "Associate Data Scientist",
+    org: "DataCamp",
+    period: "May 2026",
+    category: "cert",
+    types: ["GHOST", "WATER"],
+    icon: Calculator,
+    description: "Associate-level DataCamp certification in data science with Python.",
+    detail:
+      "Associate Data Scientist certification from DataCamp (certified 4 May 2026), covering Python, machine learning, statistics and data analysis. One of four DataCamp certifications earned in May 2026.",
   },
 ];
