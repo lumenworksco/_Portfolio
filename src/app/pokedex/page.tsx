@@ -26,6 +26,9 @@ import {
 } from "@/data/achievements";
 import { useSeenAchievements } from "@/lib/useSeenAchievements";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
+import { useMusicPref } from "@/lib/musicPref";
+import { playHoverBlip, playConfirmChime } from "@/lib/uiSfx";
+import ChiptuneMusic from "@/components/ui/ChiptuneMusic";
 
 const PIXEL = "var(--font-pixel), monospace";
 const LCD_GREEN = "#8fd94a";
@@ -100,6 +103,7 @@ function MenuTab({
   badge,
   color,
   controls,
+  soundEnabled = false,
 }: {
   selected: boolean;
   onSelect: () => void;
@@ -108,6 +112,7 @@ function MenuTab({
   badge?: React.ReactNode;
   color: string;
   controls: string;
+  soundEnabled?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
   const active = selected || hovered;
@@ -117,10 +122,19 @@ function MenuTab({
       id={`tab-${controls}`}
       aria-selected={selected}
       aria-controls={controls}
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
+      onClick={() => {
+        if (soundEnabled) playConfirmChime();
+        onSelect();
+      }}
+      onMouseEnter={() => {
+        setHovered(true);
+        if (soundEnabled) playHoverBlip();
+      }}
       onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
+      onFocus={() => {
+        setHovered(true);
+        if (soundEnabled) playHoverBlip();
+      }}
       onBlur={() => setHovered(false)}
       style={{
         position: "relative",
@@ -172,11 +186,15 @@ function AchievementCard({
   onClick,
   index,
   seen,
+  soundEnabled,
+  animate: playIn,
 }: {
   achievement: Achievement;
   onClick: () => void;
   index: number;
   seen: boolean;
+  soundEnabled: boolean;
+  animate: boolean;
 }) {
   const Icon = achievement.icon;
   const primaryColor = typeColors[achievement.types[0]];
@@ -184,15 +202,22 @@ function AchievementCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.38, delay: 0.04 + index * 0.03, ease: "easeOut" }}
+      // Entries "register" one after another: each pops in with a bright flash that settles
+      initial={playIn ? { opacity: 0, scale: 0.9, filter: "brightness(2.4) saturate(0.6)" } : false}
+      animate={{ opacity: 1, scale: 1, filter: "brightness(1) saturate(1)" }}
+      transition={{ duration: 0.4, delay: Math.min(index, 20) * 0.04, ease: "easeOut" }}
       style={{ position: "relative" }}
     >
       <CornerBrackets color={primaryColor} visible={hovered} />
       <motion.button
-        onClick={onClick}
-        onMouseEnter={() => setHovered(true)}
+        onClick={() => {
+          if (soundEnabled) playConfirmChime();
+          onClick();
+        }}
+        onMouseEnter={() => {
+          setHovered(true);
+          if (soundEnabled) playHoverBlip();
+        }}
         onMouseLeave={() => setHovered(false)}
         onFocus={() => setHovered(true)}
         onBlur={() => setHovered(false)}
@@ -464,7 +489,7 @@ export default function PokedexPage() {
   const [filter, setFilter] = useState<Category | "all">("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Achievement | null>(null);
-  const [scanDone, setScanDone] = useState(false);
+  const [musicOn, toggleMusic] = useMusicPref();
   const { seenIds, markSeen, seenCount } = useSeenAchievements();
 
   const total = achievements.length;
@@ -517,38 +542,7 @@ export default function PokedexPage() {
         }}
       />
 
-      {/* Entry reveal — red Pokédex scan line sweeping down the screen */}
-      <AnimatePresence>
-        {!scanDone && !reducedMotion && (
-          <>
-            <motion.div
-              key="reveal-overlay"
-              style={{ position: "fixed", inset: 0, background: "#060608", zIndex: 32, pointerEvents: "none" }}
-              initial={{ clipPath: "inset(0 0 0 0)" }}
-              animate={{ clipPath: "inset(100% 0 0 0)" }}
-              transition={{ duration: 1.3, ease: "linear" }}
-              onAnimationComplete={() => setScanDone(true)}
-            />
-            <motion.div
-              key="scanline"
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: "4px",
-                zIndex: 33,
-                background: "linear-gradient(to right, transparent, #CC0000 20%, #ff6666 50%, #CC0000 80%, transparent)",
-                boxShadow: "0 0 20px #CC000099, 0 0 50px #CC000050, 0 2px 8px #CC000060",
-                pointerEvents: "none",
-              }}
-              initial={{ y: 0 }}
-              animate={{ y: "100vh" }}
-              transition={{ duration: 1.3, ease: "linear" }}
-            />
-          </>
-        )}
-      </AnimatePresence>
+      <ChiptuneMusic enabled={musicOn} onToggle={toggleMusic} />
 
       {/* Back */}
       <Link
@@ -614,7 +608,7 @@ export default function PokedexPage() {
                         { text: "pulled live from GitHub and Hugging Face.", style: { color: EMERALD_INK, fontWeight: 600 } },
                       ]
                 }
-                startDelay={tab === "dex" && !scanDone ? 1100 : 150}
+                startDelay={200}
               />
             </p>
           </DialogBox>
@@ -649,6 +643,7 @@ export default function PokedexPage() {
                 badge={`${seenCount}/${total}`}
                 color={POKEDEX_RED}
                 controls="panel-dex"
+                soundEnabled={musicOn}
               />
               <MenuTab
                 selected={tab === "now"}
@@ -658,6 +653,7 @@ export default function PokedexPage() {
                 badge="LIVE"
                 color="#0e7490"
                 controls="panel-now"
+                soundEnabled={musicOn}
               />
             </div>
           </div>
@@ -776,7 +772,7 @@ export default function PokedexPage() {
               </DialogBox>
             ) : (
               <motion.div
-                key={filter + query}
+                key={filter}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.18 }}
@@ -788,6 +784,8 @@ export default function PokedexPage() {
                     achievement={a}
                     index={i}
                     seen={seenIds.has(a.id)}
+                    soundEnabled={musicOn}
+                    animate={!reducedMotion}
                     onClick={() => handleSelect(a)}
                   />
                 ))}

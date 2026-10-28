@@ -92,6 +92,19 @@ export default function ChiptuneMusic({
       ctxRef.current.resume();
     }
     schedulerRef.current();
+
+    // Browsers refuse to play audio before a click, tap or key press on the page. If music
+    // was already on (carried over from another page), begin on the first interaction.
+    const ctx = ctxRef.current;
+    if (ctx && ctx.state !== "running") {
+      const unlock = () => {
+        ctx.resume();
+        window.removeEventListener("pointerdown", unlock);
+        window.removeEventListener("keydown", unlock);
+      };
+      window.addEventListener("pointerdown", unlock);
+      window.addEventListener("keydown", unlock);
+    }
   }, []);
 
   const stop = useCallback(() => {

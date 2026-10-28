@@ -14,6 +14,7 @@ import PolaroidStack from "@/components/ui/PolaroidStack";
 import { playHoverBlip, playConfirmChime, playPowerOn, playShutterClick } from "@/lib/uiSfx";
 import { useSeenAchievements } from "@/lib/useSeenAchievements";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
+import { useMusicPref } from "@/lib/musicPref";
 import { achievements } from "@/data/achievements";
 import PocketOperator from "@/components/ui/PocketOperator";
 import {
@@ -382,7 +383,7 @@ export default function SelectPage() {
   const [navigatingToPokedex, setNavigatingToPokedex] = useState(false);
   const [navigatingToBeats, setNavigatingToBeats] = useState(false);
   const [photoFlash, setPhotoFlash] = useState(false);
-  const [musicEnabled, setMusicEnabled] = useState(false);
+  const [musicEnabled, toggleMusic] = useMusicPref();
   const { seenCount } = useSeenAchievements();
   const reducedMotion = usePrefersReducedMotion();
   const cardRefs = useRef<Record<CardId, HTMLDivElement | null>>({
@@ -477,7 +478,7 @@ export default function SelectPage() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden" style={{ background: "#060608" }}>
-      <ChiptuneMusic enabled={musicEnabled} onToggle={() => setMusicEnabled((v) => !v)} />
+      <ChiptuneMusic enabled={musicEnabled} onToggle={toggleMusic} />
       <PocketOperator
         onLaunch={handleBeats}
         disabled={selectedId !== null || navigatingToPokedex || navigatingToBeats}
