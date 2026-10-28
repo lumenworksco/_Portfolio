@@ -15,13 +15,13 @@ Personal hub for [braunf.com](https://braunf.com): a Pokémon-style start menu t
 | `/agent` | A WebGL glass orb. Click it to browse seven chapters of my life (school years, studies, building, research, work, off duty, say hello). Not linked from the start menu yet and set to `noindex` |
 | `/portfolio` | Experience, education, skills, languages and GitHub activity. Currently gated behind an "under construction" screen (`UNDER_CONSTRUCTION` in `src/app/portfolio/page.tsx`) |
 | `/research` | Redirects to [research.braunf.com](https://research.braunf.com), where the papers and the Mabushi Lab engineering work now live together |
-| `/pokedex` | Searchable, filterable Pokédex of achievements (hackathons, awards, education, certifications) |
+| `/pokedex` | Pokémon start-menu themed Pokédex with two tabs: the searchable, filterable list of achievements (hackathons, awards, education, certifications) and **Now**, the current focus areas with live GitHub and Hugging Face activity (`/pokedex#now`) |
 | `/terminal` | Interactive terminal with commands |
 | `/music` | Loops made on a Teenage Engineering PO-33 K.O., with a player |
-| `/now` | Current focus areas plus live GitHub and Hugging Face activity |
+| `/now` | Redirects to `/pokedex#now` |
 | `/contact` | Email and project links |
 
-The portfolio and now pages show live GitHub (and, on `/now`, Hugging Face) activity, fetched client-side from public APIs.
+The portfolio page and the Pokédex's Now tab show live GitHub (and, on the Now tab, Hugging Face) activity, fetched client-side from public APIs.
 
 ## Related sites
 

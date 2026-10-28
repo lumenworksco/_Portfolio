@@ -18,7 +18,7 @@ const GRAIN =
 const SITE_LINKS = [
   { label: "Pokédex", href: "/pokedex" },
   { label: "Beats", href: "/music" },
-  { label: "Now", href: "/now" },
+  { label: "Now", href: "/pokedex#now" },
   { label: "Contact", href: "/contact" },
 ];
 const ELSEWHERE_LINKS = [

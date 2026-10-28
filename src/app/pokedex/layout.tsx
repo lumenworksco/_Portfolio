@@ -3,15 +3,15 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Pokédex",
   description:
-    "23 achievements captured — hackathons, awards, education, certifications, and research by Florian Braun.",
+    "Florian Braun's Pokédex: every hackathon, award, role, certification and research paper, plus what he is working on now with live GitHub and Hugging Face activity.",
   openGraph: {
     title: "Pokédex · Florian Braun",
-    description: "23 achievements captured — hackathons, awards, certifications, and research.",
+    description: "Every hackathon, award, role and course, plus what he is working on now.",
     url: "https://braunf.com/pokedex",
   },
   twitter: {
     title: "Pokédex · Florian Braun",
-    description: "23 achievements captured — hackathons, awards, certifications, and research.",
+    description: "Every hackathon, award, role and course, plus what he is working on now.",
   },
 };
 

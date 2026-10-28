@@ -311,7 +311,7 @@ export const CHAPTERS: Chapter[] = [
       {
         title: "What he is up to right now",
         text: "Live GitHub and Hugging Face activity.",
-        href: "/now",
+        href: "/pokedex#now",
         linkLabel: "Open Now",
       },
     ],

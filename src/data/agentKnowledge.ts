@@ -32,7 +32,7 @@ export const DESTINATIONS: Destination[] = [
   { id: "research", label: "Research", href: "https://research.braunf.com", external: true, keywords: ["research", "papers", "paper", "publications"] },
   { id: "pokedex", label: "the Pokédex", href: "/pokedex", keywords: ["pokedex", "pokédex", "achievements", "trophies"] },
   { id: "music", label: "Beats", href: "/music", keywords: ["music", "beats", "loops", "po-33", "po33"] },
-  { id: "now", label: "Now", href: "/now", keywords: ["now", "current focus", "currently"] },
+  { id: "now", label: "Now", href: "/pokedex#now", keywords: ["now", "current focus", "currently"] },
   { id: "contact", label: "Contact", href: "/contact", keywords: ["contact", "email page"] },
   { id: "terminal", label: "the Terminal", href: "/terminal", keywords: ["terminal", "console", "shell"] },
   { id: "projects", label: "Personal Projects", href: "https://projects.braunf.com", external: true, keywords: ["projects", "lumen", "portfolio of projects", "personal projects"] },
@@ -188,7 +188,7 @@ export const TOPICS: Topic[] = [
     keywords: ["now", "currently", "lately", "focus", "right now", "working on", "these days"],
     answer:
       "Right now: building his own apps and tools, cross-lingual NLP research on how small language models reason across languages, and shipping features for CalmCampus. The Now page shows live GitHub and Hugging Face activity.",
-    links: [{ label: "Now page", href: "/now" }],
+    links: [{ label: "Now, in the Pokédex", href: "/pokedex#now" }],
     followUps: ["Tell me about CalmCampus", "Tell me about his research"],
   },
   {
