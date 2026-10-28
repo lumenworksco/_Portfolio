@@ -1,8 +1,10 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { achievements } from "@/data/achievements";
 
 const STORAGE_KEY = "pokedex-seen-v1";
+const VALID_IDS = new Set(achievements.map((a) => a.id));
 const EMPTY_SET: Set<string> = new Set();
 const listeners = new Set<() => void>();
 let cache: Set<string> | null = null;
@@ -49,5 +51,7 @@ function markSeenGlobal(id: string) {
 export function useSeenAchievements() {
   const seenIds = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const markSeen = useCallback((id: string) => markSeenGlobal(id), []);
-  return { seenIds, markSeen, seenCount: seenIds.size };
+  // Entries that were merged away or renamed leave stale ids in storage; do not count them.
+  const seenCount = useMemo(() => [...seenIds].filter((id) => VALID_IDS.has(id)).length, [seenIds]);
+  return { seenIds, markSeen, seenCount };
 }

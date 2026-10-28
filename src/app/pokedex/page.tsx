@@ -56,6 +56,10 @@ const UPDATED_LABEL = new Date(`${UPDATED_ISO}T12:00:00Z`)
   .toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
   .toUpperCase();
 
+// The number on each entry is its rank, most impressive first. The id stays stable so the
+// "seen" marks survive re-ordering.
+const DEX_NUMBER = new Map(achievements.map((a, i) => [a.id, String(i + 1).padStart(3, "0")]));
+
 // ─── Filter categories ─────────────────────────────────────────────────────────
 const CATEGORIES: { id: Category | "all"; label: string }[] = [
   { id: "all",        label: "ALL"       },
@@ -296,7 +300,7 @@ function AchievementCard({
         )}
 
         <p style={{ fontSize: "9px", fontFamily: PIXEL, color: "rgba(28,28,28,0.4)", margin: "4px 0 10px", letterSpacing: "0.1em" }}>
-          No.{achievement.id}
+          No.{DEX_NUMBER.get(achievement.id)}
         </p>
         <div style={{ color: primaryColor, marginBottom: "10px" }}>
           <Icon size={22} />
@@ -403,7 +407,7 @@ function Modal({ achievement, onClose }: { achievement: Achievement; onClose: ()
         </button>
 
         <p style={{ fontSize: "9px", fontFamily: PIXEL, color: "rgba(28,28,28,0.4)", margin: "6px 0 16px", letterSpacing: "0.1em" }}>
-          No.{achievement.id}
+          No.{DEX_NUMBER.get(achievement.id)}
         </p>
 
         <div style={{ display: "flex", alignItems: "flex-start", gap: "14px", marginBottom: "16px" }}>
@@ -859,6 +863,28 @@ export default function PokedexPage() {
             </DialogBox>
           </div>
         )}
+        {/* Friend credit — not one of my own entries, kept visually separate (same as the home screen) */}
+        <a
+          href="https://delphi.tools/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            marginTop: "10px",
+            fontSize: "9px",
+            fontFamily: PIXEL,
+            letterSpacing: "0.06em",
+            color: "rgba(255,255,255,0.45)",
+            textDecoration: "none",
+            transition: "color 0.15s ease",
+          }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.85)")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.45)")}
+        >
+          delphi.tools ↗ — built by a fellow developer
+        </a>
       </main>
 
       <AnimatePresence>{selected && <Modal achievement={selected} onClose={handleClose} />}</AnimatePresence>
