@@ -6,6 +6,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, X } from "lucide-react";
 import Ball from "@/components/agent/Ball";
 import { CHAPTERS, DEFAULT_PALETTE, type LifeItem, type Palette } from "@/data/lifeChapters";
+import { achievements, POKEDEX_UPDATED_FALLBACK } from "@/data/achievements";
+import { useSeenAchievements } from "@/lib/useSeenAchievements";
+import { playHoverBlip } from "@/lib/uiSfx";
 
 // The earlier chat interface lives in git history (a06be39) and in
 // src/lib/agentEngine.ts + src/data/agentKnowledge.ts.
@@ -16,11 +19,16 @@ const GRAIN =
 // Where else to go from the lone orb. Same destinations as the home menu; the hidden
 // terminal and the gated CV page are left out on purpose.
 const SITE_LINKS = [
-  { label: "Pokédex", href: "/pokedex" },
   { label: "Beats", href: "/music" },
   { label: "Now", href: "/pokedex#now" },
   { label: "Contact", href: "/contact" },
 ];
+
+// The Pokédex gets its own red handheld-style button; this is its little LCD readout.
+const DEX_TOTAL = achievements.length;
+const DEX_UPDATED = new Date(`${process.env.NEXT_PUBLIC_POKEDEX_UPDATED || POKEDEX_UPDATED_FALLBACK}T12:00:00Z`)
+  .toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" })
+  .toUpperCase();
 const ELSEWHERE_LINKS = [
   { label: "CalmCampus", href: "https://cc.braunf.com" },
   { label: "DataCamp", href: "https://data.braunf.com" },
@@ -104,6 +112,7 @@ function ItemLink({ item }: { item: LifeItem }) {
 }
 
 export default function AgentPage() {
+  const { seenCount } = useSeenAchievements();
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [leaving, setLeaving] = useState<(typeof GUIDES)[number] | null>(null);
@@ -344,9 +353,20 @@ export default function AgentPage() {
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
+            <Link href="/pokedex" className="dex-btn" onMouseEnter={playHoverBlip} aria-label={`Pokédex, ${seenCount} of ${DEX_TOTAL} entries seen`}>
+              <span className="dex-ball" aria-hidden="true" />
+              <span className="dex-body">
+                <span className="dex-name">POKéDEX</span>
+                <span className="dex-lcd" aria-hidden="true">
+                  <span>SEEN {String(seenCount).padStart(2, "0")}/{DEX_TOTAL}</span>
+                  <span>UPD {DEX_UPDATED}</span>
+                </span>
+              </span>
+              <span className="dex-arrow" aria-hidden="true">▶</span>
+            </Link>
             <div className="life-links-row">
               {SITE_LINKS.map((l) => (
-                <Link key={l.href} href={l.href} className="life-pill">
+                <Link key={l.href} href={l.href} className="life-pill life-pill-gba">
                   {l.label}
                 </Link>
               ))}
@@ -399,7 +419,7 @@ export default function AgentPage() {
         .life-chrome:focus-visible { outline:2px solid #a5b4fc; outline-offset:6px; border-radius:6px; }
         .life-home { top:22px; left:24px; }
         .life-close { top:22px; right:24px; }
-        .life-hint { bottom:112px; left:50%; transform:translateX(-50%); font-size:10px; letter-spacing:0.32em; cursor:default; pointer-events:none; opacity:0; animation: life-hint 3.6s ease-in-out 1.4s infinite; }
+        .life-hint { bottom:200px; left:50%; transform:translateX(-50%); font-size:10px; letter-spacing:0.32em; cursor:default; pointer-events:none; opacity:0; animation: life-hint 3.6s ease-in-out 1.4s infinite; }
         @keyframes life-hint { 0%,100% { opacity:0.15; } 50% { opacity:0.85; } }
 
         .life-panel { position:absolute; z-index:4; right:max(4vw, 24px); top:0; bottom:0; width:min(540px, 42vw); display:flex; flex-direction:column; justify-content:center; pointer-events:none; font-family: var(--font-inter), system-ui, sans-serif; color:#e0e7ff; outline:none; }
@@ -423,6 +443,23 @@ export default function AgentPage() {
         .life-pill-out { padding:6px 12px; font-size:10.5px; color: rgba(199,210,254,0.55); border-color: rgba(199,210,254,0.1); background: rgba(8,12,28,0.35); }
         .life-pill:hover { color:#fff; border-color: rgba(199,210,254,0.5); background: rgba(40,50,100,0.45); transform: translateY(-1px); }
         .life-pill:focus-visible { outline:2px solid #a5b4fc; outline-offset:3px; }
+        .life-pill-gba { font-family: var(--font-pixel), monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; padding:9px 12px 8px; border-radius:6px; border:3px solid #1c1c1c; background: linear-gradient(180deg,#f7f4e3,#eae5c8); color:#1c1c1c; box-shadow: inset 0 0 0 2px rgba(46,134,171,0.19), 0 4px 14px rgba(0,0,0,0.4); backdrop-filter:none; }
+        .life-pill-gba::before { content:"▶"; font-size:8px; margin-right:6px; color:#cc0000; opacity:0; width:0; transition: opacity .15s ease, width .15s ease; overflow:hidden; }
+        .life-pill-gba:hover, .life-pill-gba:focus-visible { color:#1c1c1c; background: linear-gradient(180deg,#fffdf0,#f1ecd0); border-color:#1c1c1c; outline:none; }
+        .life-pill-gba:hover::before, .life-pill-gba:focus-visible::before { opacity:1; width:10px; }
+
+        .dex-btn { position:relative; display:flex; align-items:center; gap:12px; padding:9px 14px 9px 12px; min-width:min(330px, 88vw); border-radius:10px; border:3px solid #1c1c1c; text-decoration:none; color:#fff; font-family: var(--font-pixel), monospace; background: linear-gradient(180deg,#e8222a 0%,#cc0000 48%,#a80000 100%); box-shadow: inset 0 3px 0 rgba(255,255,255,0.28), inset 0 -4px 0 rgba(0,0,0,0.25), 0 0 0 2px rgba(255,255,255,0.12), 0 8px 26px rgba(204,0,0,0.38), 0 6px 18px rgba(0,0,0,0.5); transition: transform .2s ease, box-shadow .2s ease; -webkit-tap-highlight-color: transparent; animation: dex-pulse 3.2s ease-in-out infinite; }
+        .dex-btn:hover, .dex-btn:focus-visible { transform: translateY(-3px); outline:none; box-shadow: inset 0 3px 0 rgba(255,255,255,0.34), inset 0 -4px 0 rgba(0,0,0,0.25), 0 0 0 2px rgba(255,255,255,0.35), 0 12px 34px rgba(204,0,0,0.6), 0 8px 20px rgba(0,0,0,0.55); }
+        .dex-btn:focus-visible { outline:2px solid #fff; outline-offset:4px; }
+        .dex-ball { flex:none; width:30px; height:30px; border-radius:50%; border:3px solid #1c1c1c; background: linear-gradient(180deg,#fff 0 50%,#2e86ab 50% 100%); position:relative; box-shadow: 0 0 10px rgba(120,220,255,0.6); }
+        .dex-ball::after { content:""; position:absolute; left:50%; top:50%; width:9px; height:9px; transform:translate(-50%,-50%); border-radius:50%; background:#fff; border:2px solid #1c1c1c; }
+        .dex-body { display:flex; flex-direction:column; gap:6px; flex:1; min-width:0; }
+        .dex-name { font-size:13px; letter-spacing:0.1em; text-shadow: 2px 2px 0 #7a0000; }
+        .dex-lcd { display:flex; justify-content:space-between; gap:12px; padding:5px 7px 4px; border:2px solid #1c1c1c; border-radius:3px; background:#a8c880; color:#1f3a14; font-size:7px; letter-spacing:0.06em; line-height:1.3; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); white-space:nowrap; }
+        .dex-arrow { flex:none; font-size:12px; text-shadow:2px 2px 0 #7a0000; animation: dex-blink 1s steps(2, jump-none) infinite; }
+        @keyframes dex-blink { 0%,49% { opacity:1; } 50%,100% { opacity:0.2; } }
+        @keyframes dex-pulse { 0%,100% { filter:none; } 50% { filter: drop-shadow(0 0 10px rgba(255,60,60,0.45)); } }
+        @media (prefers-reduced-motion: reduce) { .dex-btn, .dex-arrow { animation:none; } }
 
         .life-nav { position:absolute; z-index:5; left:0; right:0; bottom:22px; display:flex; justify-content:center; gap:6px; padding:0 16px; overflow-x:auto; scrollbar-width:none; }
         .life-nav::-webkit-scrollbar { display:none; }
@@ -458,7 +495,7 @@ export default function AgentPage() {
 
         @media (max-width: 899px) {
           .life-stage[data-open="false"] .life-orb { transform: translateY(-9vh); }
-          .life-guide { top:auto; bottom:122px; width:40vw; max-width:190px; gap:12px; padding-bottom:0; justify-content:flex-end; }
+          .life-guide { top:auto; bottom:178px; width:40vw; max-width:190px; gap:12px; padding-bottom:0; justify-content:flex-end; }
           .life-gcard-scene { width:min(30vw, 138px); }
           .life-links { gap:6px; bottom:16px; }
           .life-links-row { gap:5px; }
