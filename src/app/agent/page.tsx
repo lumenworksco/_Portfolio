@@ -452,7 +452,7 @@ export default function AgentPage() {
         .life-links-top { bottom:auto; top:16px; }
         .life-links-row { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; }
         .life-pill { display:inline-flex; align-items:center; gap:4px; font-family: var(--font-inter), system-ui, sans-serif; font-size:11.5px; letter-spacing:0.06em; padding:8px 14px; border-radius:999px; border:1px solid rgba(199,210,254,0.18); background: rgba(8,12,28,0.5); color: rgba(224,231,255,0.8); text-decoration:none; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: color .25s ease, border-color .25s ease, background .25s ease, transform .25s ease; }
-        .life-pill-out { padding:6px 12px; font-size:10.5px; color: rgba(199,210,254,0.55); border-color: rgba(199,210,254,0.1); background: rgba(8,12,28,0.35); }
+        .life-pill-out { padding:6px 12px; font-size:10.5px; color: rgba(210,220,255,0.78); border-color: rgba(199,210,254,0.18); background: rgba(8,12,28,0.5); }
         .life-pill:hover { color:#fff; border-color: rgba(199,210,254,0.5); background: rgba(40,50,100,0.45); transform: translateY(-1px); }
         .life-pill:focus-visible { outline:2px solid #a5b4fc; outline-offset:3px; }
         .life-pill-gba { font-family: var(--font-pixel), monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; padding:9px 12px 8px; border-radius:6px; border:3px solid #1c1c1c; background: linear-gradient(180deg,#f7f4e3,#eae5c8); color:#1c1c1c; box-shadow: inset 0 0 0 2px rgba(46,134,171,0.19), 0 4px 14px rgba(0,0,0,0.4); backdrop-filter:none; }

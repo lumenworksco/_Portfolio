@@ -244,30 +244,30 @@ export default function ContactPage() {
         .ct-root { position:relative; min-height:100svh; width:100%; overflow-x:hidden; background:#04080a; color:#eef4ef; font-family:${SANS}; }
         .ct-vig { position:fixed; inset:0; z-index:1; pointer-events:none; background: radial-gradient(ellipse 85% 70% at 50% 40%, transparent 0%, rgba(4,8,10,0.78) 100%); }
         .ct-scan { position:fixed; inset:0; z-index:2; pointer-events:none; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 3px); }
-        .ct-back { position:fixed; top:20px; left:22px; z-index:20; display:inline-flex; align-items:center; gap:8px; font:11px ${PIXEL}; letter-spacing:0.14em; text-transform:uppercase; color:rgba(238,244,239,0.55); text-decoration:none; transition:color .15s ease; }
+        .ct-back { position:fixed; top:20px; left:22px; z-index:20; display:inline-flex; align-items:center; gap:8px; font:11px ${PIXEL}; letter-spacing:0.14em; text-transform:uppercase; color:rgba(238,244,239,0.75); text-decoration:none; transition:color .15s ease; }
         .ct-back:hover { color:#fff; }
         .ct-main { position:relative; z-index:10; min-height:100svh; display:grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); align-items:center; max-width:1500px; gap:clamp(24px,5vw,80px); padding:clamp(80px,10vh,120px) clamp(20px,6vw,100px) clamp(40px,8vh,80px); margin:0 auto; }
-        .ct-kicker { font:10px ${PIXEL}; letter-spacing:0.22em; color:rgba(238,244,239,0.55); margin-bottom:18px; }
+        .ct-kicker { font:10px ${PIXEL}; letter-spacing:0.22em; color:rgba(238,244,239,0.72); margin-bottom:18px; }
         .ct-title { font-size:clamp(46px, 8vw, 120px); font-weight:650; letter-spacing:-0.045em; line-height:0.95; background:linear-gradient(180deg,#fff 30%,#a9c9b4); -webkit-background-clip:text; background-clip:text; color:transparent; margin:0 0 18px; }
-        .ct-sub { font-size:clamp(14px,1.3vw,17px); color:rgba(238,244,239,0.6); max-width:52ch; line-height:1.6; margin-bottom:clamp(28px,5vh,56px); }
+        .ct-sub { font-size:clamp(14px,1.3vw,17px); color:rgba(238,244,239,0.74); max-width:52ch; line-height:1.6; margin-bottom:clamp(28px,5vh,56px); }
         .ct-rows { list-style:none; margin:0; padding:0; border-top:1px solid rgba(238,244,239,0.14); }
         .ct-row { position:relative; display:flex; align-items:center; border-bottom:1px solid rgba(238,244,239,0.14); transition:background .2s ease; }
         .ct-row[data-on="true"] { background:linear-gradient(90deg, rgba(255,255,255,0.06), transparent); }
         .ct-link { position:relative; flex:1; min-width:0; display:flex; align-items:center; gap:clamp(14px,2.2vw,32px); padding:clamp(16px,2.6vh,26px) 6px; color:inherit; text-decoration:none; }
         .ct-link:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
-        .ct-n { font:10px ${PIXEL}; color:rgba(238,244,239,0.35); width:24px; flex:none; }
+        .ct-n { font:10px ${PIXEL}; color:rgba(238,244,239,0.55); width:24px; flex:none; }
         .ct-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
         .ct-label { font:9px ${PIXEL}; letter-spacing:0.18em; color:var(--accent); }
         .ct-value { font-size:clamp(17px,3vw,40px); font-weight:560; letter-spacing:-0.02em; line-height:1.1; overflow-wrap:anywhere; transition:transform .25s ease; }
         .ct-row[data-on="true"] .ct-value { transform:translateX(8px); }
-        .ct-go { font-size:clamp(18px,2vw,26px); color:rgba(238,244,239,0.35); transition:color .2s ease, transform .25s ease; padding-right:8px; }
+        .ct-go { font-size:clamp(18px,2vw,26px); color:rgba(238,244,239,0.55); transition:color .2s ease, transform .25s ease; padding-right:8px; }
         .ct-row[data-on="true"] .ct-go { color:var(--accent); transform:translateX(4px); }
         .ct-copy { flex:none; margin-right:6px; font:9px ${PIXEL}; letter-spacing:0.12em; color:#eef4ef; background:transparent; border:1px solid rgba(238,244,239,0.3); border-radius:4px; padding:10px 12px 9px; cursor:pointer; transition:background .15s ease, color .15s ease, border-color .15s ease; }
         .ct-copy:hover { background:rgba(255,255,255,0.1); border-color:rgba(238,244,239,0.6); }
         .ct-copy[data-done="true"] { background:#6fdc7a; color:#08210f; border-color:#6fdc7a; }
         .ct-sites { display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin-top:clamp(24px,4vh,44px); }
-        .ct-sites-label { font:8px ${PIXEL}; letter-spacing:0.16em; color:rgba(238,244,239,0.35); width:100%; }
-        .ct-site { display:inline-flex; align-items:center; gap:8px; font-size:13px; color:rgba(238,244,239,0.75); text-decoration:none; transition:color .15s ease; }
+        .ct-sites-label { font:8px ${PIXEL}; letter-spacing:0.16em; color:rgba(238,244,239,0.58); width:100%; }
+        .ct-site { display:inline-flex; align-items:center; gap:8px; font-size:13px; color:rgba(238,244,239,0.88); text-decoration:none; transition:color .15s ease; }
         .ct-site i { width:8px; height:8px; display:block; border-radius:2px; }
         .ct-site:hover { color:#fff; }
 
