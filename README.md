@@ -1,6 +1,6 @@
 # Portfolio Hub
 
-[![Deploy](https://github.com/lumenworksco/Portfolio/actions/workflows/deploy.yml/badge.svg)](https://github.com/lumenworksco/Portfolio/actions/workflows/deploy.yml)
+[![Deploy](https://github.com/lumenworksco/_Portfolio/actions/workflows/deploy.yml/badge.svg)](https://github.com/lumenworksco/_Portfolio/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss&logoColor=white)
