@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /agent/
+Disallow: /terminal/
+Disallow: /now/
+
+Sitemap: https://braunf.com/sitemap.xml
