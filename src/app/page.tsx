@@ -1,1026 +1,602 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Mail, BarChart3, BookOpen } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Aurora from "@/components/ui/Aurora";
-import SpotlightCard from "@/components/ui/SpotlightCard";
-import GradientText from "@/components/ui/GradientText";
-import FadeContent from "@/components/ui/FadeContent";
-import ChiptuneMusic from "@/components/ui/ChiptuneMusic";
-import PolaroidStack from "@/components/ui/PolaroidStack";
-import { playHoverBlip, playConfirmChime, playPowerOn, playShutterClick } from "@/lib/uiSfx";
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpRight, X } from "lucide-react";
+import Ball from "@/components/agent/Ball";
+import { CHAPTERS, DEFAULT_PALETTE, type LifeItem, type Palette } from "@/data/lifeChapters";
+import { achievements, POKEDEX_UPDATED_FALLBACK } from "@/data/achievements";
 import { useSeenAchievements } from "@/lib/useSeenAchievements";
-import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
-import { useMusicPref } from "@/lib/musicPref";
-import { achievements } from "@/data/achievements";
+import { playHoverBlip, playPowerOn, playShutterClick } from "@/lib/uiSfx";
 import PocketOperator from "@/components/ui/PocketOperator";
-import {
-  POKEDEX_RED,
-  EMERALD_INK,
-  EMERALD_BOX_BG,
-  EMERALD_BOX_BORDER,
-  EMERALD_BOX_INSET,
-  DialogBox,
-  TypewriterText,
-  CornerBrackets,
-  OverworldStrip,
-} from "@/components/ui/emerald";
+import PolaroidStack from "@/components/ui/PolaroidStack";
 
-const PO_GREEN = "#8fd94a";
+// The earlier chat interface lives in git history (a06be39) and in
+// src/lib/agentEngine.ts + src/data/agentKnowledge.ts.
 
-type CardId = "lumen" | "calm" | "research";
+const GRAIN =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
+// Where else to go from the lone orb. Same destinations as the home menu; the hidden
+// terminal and the gated CV page are left out on purpose.
 
-interface Card {
-  id: CardId;
-  title: string;
-  subtitle: string;
-  pokemonType: string;
-  typeColor: string;
-  description: string;
-  href: string | null;
-  available: boolean;
-  accentColor: string;
-  spotlightColor: `rgba(${number}, ${number}, ${number}, ${number})`;
-  gradientColors: string[];
-  cardImage: string;
-  cardAlt: string;
-}
+// The Pokédex gets its own red handheld-style button; this is its little LCD readout.
+const DEX_TOTAL = achievements.length;
+const DEX_UPDATED = new Date(`${process.env.NEXT_PUBLIC_POKEDEX_UPDATED || POKEDEX_UPDATED_FALLBACK}T12:00:00Z`)
+  .toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" })
+  .toUpperCase();
+const ELSEWHERE_LINKS = [
+  { label: "CalmCampus", href: "https://cc.braunf.com" },
+  { label: "DataCamp", href: "https://data.braunf.com" },
+  { label: "Nihongo", href: "https://nihongo.braunf.com" },
+  { label: "Go", href: "https://go.braunf.com" },
+];
 
-const cards: Card[] = [
+// Two trading cards guard the two things that matter most: the personal projects and the research.
+// Hovering one tints the orb and the light behind it with that card's palette.
+const paletteOf = (id: string) => CHAPTERS.find((c) => c.id === id)!.palette;
+const GUIDES = [
   {
-    id: "lumen",
+    id: "projects",
+    side: "left",
     title: "Personal Projects",
-    subtitle: "Project Portfolio",
-    pokemonType: "FIRE",
-    typeColor: "#EE8130",
-    description:
-      "The apps, tools and AI systems I build on my own, full stack and end to end: an autonomous trading system, mobile and macOS apps, and open-source utilities.",
+    caption: "Apps, tools and AI systems",
     href: "https://projects.braunf.com",
-    available: true,
-    accentColor: "#f59e0b",
-    spotlightColor: "rgba(245, 158, 11, 0.4)",
-    gradientColors: ["#f59e0b", "#d97706", "#fbbf24", "#d97706", "#f59e0b"],
-    cardImage: "/cards/eevee.webp",
-    cardAlt: "Eevee ex, Special Art Rare, Terastal Fest ex 224/187",
-  },
-  {
-    id: "calm",
-    title: "CalmCampus",
-    subtitle: "Student Wellness",
-    pokemonType: "GRASS",
-    typeColor: "#7AC74C",
-    description:
-      "A student wellness app that helps students manage stress, build healthy routines, and find calm during campus life.",
-    href: "https://cc.braunf.com",
-    available: true,
-    accentColor: "#65a30d",
-    spotlightColor: "rgba(101, 163, 13, 0.25)",
-    gradientColors: ["#4d7c0f", "#65a30d", "#a3e635", "#65a30d", "#4d7c0f"],
-    cardImage: "/cards/reuniclus.webp",
-    cardAlt: "Reuniclus, Art Rare, Wild Force 075/071",
+    img: "/cards/eevee-hd.webp",
+    alt: "Eevee ex, Special Art Rare",
+    palette: paletteOf("work"),
   },
   {
     id: "research",
+    side: "right",
     title: "Research",
-    subtitle: "Independent Research",
-    pokemonType: "PSYCHIC",
-    typeColor: "#F95587",
-    description:
-      "Independent research on cross-lingual NLP and LLM interpretability, from Japanese pragmatics to detecting benchmark contamination, plus the open-source ESP32 hardware lab that sits beside it.",
+    caption: "Papers and ESP32 hardware",
     href: "https://research.braunf.com",
-    available: true,
-    accentColor: "#ec4899",
-    spotlightColor: "rgba(236, 72, 153, 0.3)",
-    gradientColors: ["#ec4899", "#db2777", "#f472b6", "#db2777", "#ec4899"],
-    cardImage: "/cards/bronzor.webp",
-    cardAlt: "Bronzor, Art Rare, Wild Force 074/071",
+    img: "/cards/reuniclus-hd.webp",
+    alt: "Reuniclus, Art Rare",
+    palette: paletteOf("school"),
   },
-];
+] as const;
 
-// ─── Pokémon Type Badge ────────────────────────────────────────────────────────
-function TypeBadge({ type, color }: { type: string; color: string }) {
-  return (
-    <span
-      style={{
-        display: "inline-block",
-        padding: "3px 10px 2px",
-        borderRadius: "4px",
-        background: color,
-        color: "#fff",
-        fontSize: "8px",
-        fontFamily: "var(--font-pixel), monospace",
-        letterSpacing: "0.04em",
-        textTransform: "uppercase",
-        lineHeight: "1.8",
-        textShadow: "0 1px 1px rgba(0,0,0,0.75), 0 0 3px rgba(0,0,0,0.4)",
-        boxShadow: "inset 0 -2px 0 rgba(0,0,0,0.25)",
-      }}
-    >
-      {type}
-    </span>
-  );
+// Tilt the card toward the pointer and slide the foil and glare with it.
+function tiltCard(e: React.PointerEvent<HTMLElement>) {
+  if (e.pointerType === "touch") return;
+  const card = e.currentTarget.querySelector<HTMLElement>(".life-gcard");
+  if (!card) return;
+  const r = card.getBoundingClientRect();
+  const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+  const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+  card.style.setProperty("--rx", `${((0.5 - y) * 20).toFixed(2)}deg`);
+  card.style.setProperty("--ry", `${((x - 0.5) * 26).toFixed(2)}deg`);
+  card.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
+  card.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
 }
 
-// ─── Start-menu row — GBA pause-menu list item ─────────────────────────────────
-function StartMenuRow({
-  href,
-  onClick,
-  external = false,
-  icon,
-  label,
-  color,
-  badge,
-  soundEnabled = false,
-}: {
-  href?: string;
-  onClick?: () => void;
-  external?: boolean;
-  icon: React.ReactNode;
-  label: string;
-  color: string;
-  badge?: string;
-  soundEnabled?: boolean;
-}) {
-  const [hovered, setHovered] = useState(false);
+function resetCard(e: React.PointerEvent<HTMLElement>) {
+  const card = e.currentTarget.querySelector<HTMLElement>(".life-gcard");
+  if (!card) return;
+  for (const v of ["--rx", "--ry", "--mx", "--my"]) card.style.removeProperty(v);
+}
 
-  const style: React.CSSProperties = {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    width: "100%",
-    padding: "8px 14px 8px 24px",
-    borderRadius: "6px",
-    border: "none",
-    outline: "none",
-    background: hovered ? color : "transparent",
-    color: hovered ? "#fff" : EMERALD_INK,
-    textDecoration: "none",
-    cursor: "pointer",
-    transition: "background 0.15s ease, color 0.15s ease",
-    fontFamily: "var(--font-pixel), monospace",
-    fontSize: "10px",
-    letterSpacing: "0.04em",
-    textAlign: "left",
-  };
+const rgb = (v: number[]) => `rgb(${v.map((x) => Math.round(x * 255)).join(" ")})`;
 
-  const handlers = {
-    onMouseEnter: () => {
-      setHovered(true);
-      if (soundEnabled) playHoverBlip();
-    },
-    onMouseLeave: () => setHovered(false),
-    onFocus: () => {
-      setHovered(true);
-      if (soundEnabled) playHoverBlip();
-    },
-    onBlur: () => setHovered(false),
-    onClick: () => {
-      if (soundEnabled) playConfirmChime();
-      onClick?.();
-    },
-  };
-
+function ItemLink({ item }: { item: LifeItem }) {
+  if (!item.href) return null;
+  const label = item.linkLabel ?? "Open";
   const inner = (
     <>
-      <span
-        style={{
-          position: "absolute",
-          left: "9px",
-          opacity: hovered ? 1 : 0,
-          transition: "opacity 0.15s ease",
-          fontSize: "9px",
-          lineHeight: 1,
-        }}
-      >
-        ▶
-      </span>
-      <span
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "16px",
-          lineHeight: 0,
-          color: hovered ? "#fff" : color,
-          transition: "color 0.15s ease",
-        }}
-      >
-        {icon}
-      </span>
-      <span style={{ flex: 1, display: "inline-block", lineHeight: 1, transform: "translateY(1px)" }}>
-        {label}
-      </span>
-      {badge && (
-        <span
-          style={{
-            fontSize: "7px",
-            background: hovered ? "rgba(255,255,255,0.28)" : color,
-            color: "#fff",
-            padding: "3px 6px 2px",
-            borderRadius: "4px",
-            lineHeight: 1,
-            whiteSpace: "nowrap",
-          }}
-        >
-          {badge}
-        </span>
-      )}
+      {label}
+      <ArrowUpRight size={13} aria-hidden="true" />
     </>
   );
-
-  if (onClick) {
+  if (item.external || item.href.startsWith("mailto:")) {
     return (
-      <button style={style} {...handlers}>
-        {inner}
-      </button>
-    );
-  }
-
-  if (external) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" style={style} {...handlers}>
+      <a
+        href={item.href}
+        className="life-link"
+        {...(item.href.startsWith("mailto:") ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+      >
         {inner}
       </a>
     );
   }
-
   return (
-    <Link href={href!} style={style} {...handlers}>
+    <Link href={item.href} className="life-link">
       {inner}
     </Link>
   );
 }
 
-// ─── Collector card — the Pokémon TCG card that represents each choice ────────
-const CARD_ASPECT = 600 / 825;
-
-function CollectorCard({
-  src,
-  alt,
-  width = 112,
-  hovered = false,
-  selected = false,
-  color,
-}: {
-  src: string;
-  alt: string;
-  width?: number;
-  hovered?: boolean;
-  selected?: boolean;
-  color: string;
-}) {
-  const reducedMotion = usePrefersReducedMotion();
-  const height = Math.round(width / CARD_ASPECT);
-
-  return (
-    <motion.div
-      style={{ width, height, position: "relative" }}
-      animate={
-        reducedMotion
-          ? { scale: selected ? 1.06 : 1 }
-          : selected
-          ? { scale: [1, 1.12, 0.96, 1.04, 1], rotate: [0, -4, 4, -2, 0] }
-          : hovered
-          ? { y: -6, rotate: -2 }
-          : { y: 0, rotate: 0 }
-      }
-      transition={reducedMotion ? { duration: 0.2 } : { duration: selected ? 0.55 : 0.3, ease: "easeOut" }}
-    >
-      {/* ground shadow */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "-9px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: `${width * 0.7}px`,
-          height: "9px",
-          borderRadius: "50%",
-          background: "rgba(0,0,0,0.4)",
-          filter: "blur(4px)",
-        }}
-      />
-      <div
-        style={{
-          position: "relative",
-          width,
-          height,
-          borderRadius: "7px",
-          overflow: "hidden",
-          boxShadow:
-            hovered || selected
-              ? `0 0 0 2px ${color}, 0 12px 26px ${color}66`
-              : "0 0 0 1px rgba(0,0,0,0.55), 0 6px 14px rgba(0,0,0,0.35)",
-          transition: "box-shadow 0.25s ease",
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt={alt}
-          width={600}
-          height={825}
-          loading="eager"
-          draggable={false}
-          style={{ width: "100%", height: "100%", display: "block", objectFit: "cover" }}
-        />
-        {/* holo sheen */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.38) 48%, transparent 66%)",
-            opacity: hovered || selected ? 1 : 0,
-            transform: hovered || selected ? "translateX(0)" : "translateX(-40%)",
-            transition: "opacity 0.35s ease, transform 0.6s ease",
-            mixBlendMode: "overlay",
-            pointerEvents: "none",
-          }}
-        />
-      </div>
-
-      {/* selection flash */}
-      {selected && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.6 }}
-          animate={{ opacity: [0, 1, 0], scale: [0.6, 1.5, 1.7] }}
-          transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${color}bb 0%, transparent 70%)`,
-            pointerEvents: "none",
-          }}
-        />
-      )}
-    </motion.div>
-  );
-}
-
-// ─── Card entrance variants ────────────────────────────────────────────────────
-const cardVariants = {
-  hidden: { opacity: 0, y: 36, scale: 0.95 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.55, delay: 0.35 + i * 0.14, ease: "easeOut" as const },
-  }),
-};
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-export default function SelectPage() {
+export default function AgentPage() {
   const router = useRouter();
-  const [hoveredId, setHoveredId] = useState<CardId | null>(null);
-  const [selectedId, setSelectedId] = useState<CardId | null>(null);
-  const [navigatingToPokedex, setNavigatingToPokedex] = useState(false);
-  const [navigatingToBeats, setNavigatingToBeats] = useState(false);
-  const [photoFlash, setPhotoFlash] = useState(false);
-  const [musicEnabled, toggleMusic] = useMusicPref();
   const { seenCount } = useSeenAchievements();
-  const reducedMotion = usePrefersReducedMotion();
-  const cardRefs = useRef<Record<CardId, HTMLDivElement | null>>({
-    lumen: null,
-    calm: null,
-    research: null,
-  });
+  const [beats, setBeats] = useState(false);
+  const [photoFlash, setPhotoFlash] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [leaving, setLeaving] = useState<(typeof GUIDES)[number] | null>(null);
+  const [idx, setIdx] = useState(0);
+  const orbRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
 
-  // Backtick easter egg → terminal
+  const chapter = CHAPTERS[idx];
+  const hoveredGuide = GUIDES.find((g) => g.id === (leaving?.id ?? hovered));
+  const palette: Palette = open ? chapter.palette : hoveredGuide ? hoveredGuide.palette : DEFAULT_PALETTE;
+
+  // A short flash in the guide's colour, then on to the site (straight away for reduced motion).
+  const launch = (e: React.MouseEvent, guide: (typeof GUIDES)[number]) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    if (leaving) return;
+    setLeaving(guide);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(() => window.location.assign(guide.href), reduced ? 0 : 650);
+  };
+
+  const goTo = useCallback((i: number) => setIdx((i + CHAPTERS.length) % CHAPTERS.length), []);
+
+  const onOrb = () => {
+    if (!open) setOpen(true);
+    else goTo(idx + 1);
+  };
+
+  const close = useCallback(() => {
+    setOpen(false);
+    orbRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  // The sampler on the left edge opens Beats; the polaroids open the photo portfolio.
+  const openBeats = () => {
+    if (beats || leaving) return;
+    playPowerOn();
+    setBeats(true);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(() => router.push("/music"), reduced ? 0 : 650);
+  };
+  const shutter = () => {
+    playShutterClick();
+    setPhotoFlash(true);
+    window.setTimeout(() => setPhotoFlash(false), 260);
+  };
+
+  // Backtick easter egg: the terminal
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "`" && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        router.push("/terminal");
-      }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "`" && !e.ctrlKey && !e.metaKey && !e.altKey) router.push("/terminal");
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [router]);
 
-  // Back/forward cache restores this page mid-selection (other cards dimmed, flash up).
+  // Coming back with the browser's back button restores this page exactly as it was left
+  // (bfcache), colour flash included. Clear that state so the orb is usable again.
   useEffect(() => {
     const onShow = (e: PageTransitionEvent) => {
       if (!e.persisted) return;
-      setSelectedId(null);
-      setNavigatingToPokedex(false);
-      setNavigatingToBeats(false);
+      setLeaving(null);
+      setHovered(null);
+      setBeats(false);
       setPhotoFlash(false);
-      setHoveredId(null);
     };
     window.addEventListener("pageshow", onShow);
     return () => window.removeEventListener("pageshow", onShow);
   }, []);
 
-  const selectedCard = cards.find((c) => c.id === selectedId) ?? null;
+  // Arrow keys browse chapters, Escape returns to the lone orb.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!open) return;
+      if (e.key === "Escape") close();
+      else if (e.key === "ArrowRight") goTo(idx + 1);
+      else if (e.key === "ArrowLeft") goTo(idx - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, idx, goTo, close]);
 
-  const handleSelect = useCallback(
-    (card: Card) => {
-      if (!card.available || selectedId !== null || navigatingToPokedex) return;
-      if (musicEnabled) playConfirmChime();
-      setSelectedId(card.id);
-      if (card.href) {
-        const isInternal = card.href.startsWith("/");
-        setTimeout(() => {
-          if (isInternal) {
-            router.push(card.href!);
-          } else {
-            window.location.href = card.href!;
-          }
-        }, 850);
-      }
-    },
-    [selectedId, navigatingToPokedex, router, musicEnabled]
-  );
-
-  const handleCardKeyDown = useCallback(
-    (e: React.KeyboardEvent, card: Card, index: number) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        handleSelect(card);
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        const next = cards[(index + 1) % cards.length];
-        cardRefs.current[next.id]?.focus();
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        const prev = cards[(index - 1 + cards.length) % cards.length];
-        cardRefs.current[prev.id]?.focus();
-      }
-    },
-    [handleSelect]
-  );
-
-  const handlePokedex = useCallback(() => {
-    if (selectedId !== null || navigatingToPokedex) return;
-    if (musicEnabled) playConfirmChime();
-    setNavigatingToPokedex(true);
-    setTimeout(() => router.push("/pokedex"), 700);
-  }, [selectedId, navigatingToPokedex, router, musicEnabled]);
-
-  const handleBeats = useCallback(() => {
-    if (selectedId !== null || navigatingToPokedex || navigatingToBeats) return;
-    playPowerOn();
-    setNavigatingToBeats(true);
-    setTimeout(() => router.push("/music"), 650);
-  }, [selectedId, navigatingToPokedex, navigatingToBeats, router]);
-
-  const handlePortfolio = useCallback(() => {
-    playShutterClick();
-    setPhotoFlash(true);
-    setTimeout(() => setPhotoFlash(false), 260);
-  }, []);
+  // Bring keyboard focus into the chapter when it opens.
+  useEffect(() => {
+    if (open) panelRef.current?.focus({ preventScroll: true });
+  }, [open]);
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden" style={{ background: "#060608" }}>
-      <ChiptuneMusic enabled={musicEnabled} onToggle={toggleMusic} />
-      <PocketOperator
-        onLaunch={handleBeats}
-        disabled={selectedId !== null || navigatingToPokedex || navigatingToBeats}
-      />
-      <PolaroidStack href="https://braunf25.myportfolio.com" onLaunch={handlePortfolio} />
+    <main
+      className="life-stage fixed inset-0 overflow-hidden"
+      data-open={open}
+      style={
+        {
+          background: "radial-gradient(ellipse 85% 75% at 50% 46%, #151b3d 0%, #0b0e22 52%, #05060f 100%)",
+          "--c1": rgb(palette.blue),
+          "--c2": rgb(palette.lav),
+          "--c3": rgb(palette.peach),
+        } as React.CSSProperties
+      }
+    >
+      <h1 className="sr-only">Florian Braun: an orb that opens chapters of his life</h1>
+      <p className="sr-only" role="status" aria-live="polite">
+        {open ? `Chapter ${idx + 1} of ${CHAPTERS.length}: ${chapter.title}` : ""}
+      </p>
 
-      {/* Aurora WebGL background — Hoenn-leaning tropical palette */}
-      <div className="fixed inset-0 z-0">
-        <Aurora
-          colorStops={["#2f6b2f", "#0e7490", "#c9a36a"]}
-          speed={0.6}
-          amplitude={1.1}
-        />
+      {/* Slow aurora light, tinted by the chapter */}
+      <div aria-hidden="true" className="life-aurora life-aurora-a" />
+      <div aria-hidden="true" className="life-aurora life-aurora-b" />
+      <div aria-hidden="true" className="life-aurora life-aurora-c" />
+
+      {/* The orb: centred when alone, tucked to the side while browsing */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div className="life-orb relative h-[min(96vmin,900px)] w-[min(96vmin,900px)]">
+          <Ball className="absolute inset-0" palette={palette} />
+          <button
+            ref={orbRef}
+            type="button"
+            onClick={onOrb}
+            className="life-orb-hit"
+            aria-label={open ? "Next chapter" : "Open the orb to browse chapters of Florian's life"}
+            aria-expanded={open}
+          />
+        </div>
       </div>
 
-      {/* Vignette */}
-      <div
-        className="fixed inset-0 z-[1] pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 0%, rgba(6,6,8,0.55) 100%)",
-        }}
-      />
-
-      {/* CRT scanlines — subtle handheld-screen texture */}
-      <div
-        className="fixed inset-0 z-20 pointer-events-none"
-        style={{
-          background:
-            "repeating-linear-gradient(to bottom, rgba(0,0,0,0.09) 0px, rgba(0,0,0,0.09) 1px, transparent 1px, transparent 3px)",
-          mixBlendMode: "multiply",
-          opacity: 0.5,
-        }}
-      />
-
-      {/* Card selection flash — white */}
+      {/* The two guides */}
       <AnimatePresence>
-        {selectedId !== null && (
+        {!open &&
+          GUIDES.map((g, i) => (
+            <motion.a
+              key={g.id}
+              href={g.href}
+              className={`life-guide life-guide-${g.side}`}
+              style={{ ["--aura" as string]: rgb(g.palette.blue), ["--aura2" as string]: rgb(g.palette.peach) } as React.CSSProperties}
+              aria-label={`${g.title}: ${g.caption}`}
+              data-active={hovered === g.id || leaving?.id === g.id}
+              initial={{ opacity: 0, x: g.side === "left" ? -48 : 48 }}
+              animate={{ opacity: leaving && leaving.id !== g.id ? 0.25 : 1, x: 0 }}
+              exit={{ opacity: 0, x: g.side === "left" ? -32 : 32 }}
+              transition={{ duration: 0.9, delay: 0.5 + i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+              onMouseEnter={() => setHovered(g.id)}
+              onMouseLeave={() => setHovered(null)}
+              onFocus={() => setHovered(g.id)}
+              onBlur={() => setHovered(null)}
+              onClick={(e) => launch(e, g)}
+              onPointerMove={tiltCard}
+              onPointerLeave={resetCard}
+            >
+              <span className="life-guide-aura" aria-hidden="true" />
+              <span className="life-gcard-scene" style={{ animationDelay: `${i * -4.5}s` }}>
+                <span className="life-gcard">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={g.img} alt="" width={868} height={1212} draggable={false} className="life-gcard-img" />
+                  <span className="life-gcard-holo" aria-hidden="true" />
+                  <span className="life-gcard-glare" aria-hidden="true" />
+                </span>
+              </span>
+              <span className="life-guide-label">
+                <span className="life-guide-title">{g.title}</span>
+                <span className="life-guide-cap">{g.caption}</span>
+                <span className="life-guide-go">
+                  Enter <ArrowUpRight size={13} aria-hidden="true" />
+                </span>
+              </span>
+            </motion.a>
+          ))}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {leaving && (
           <motion.div
-            key="flash"
-            className="fixed inset-0 z-50 pointer-events-none"
-            style={{ background: "#fff" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.9, 0] }}
-            transition={{ duration: 0.5, delay: 0.25, times: [0, 0.35, 1], ease: "easeOut" }}
+            aria-hidden="true"
+            className="life-flash"
+            style={{ background: `radial-gradient(circle at 50% 50%, ${rgb(leaving.palette.peach)} 0%, ${rgb(leaving.palette.blue)} 55%, #05060f 100%)` }}
+            initial={{ opacity: 0, scale: 1.08 }}
+            animate={{ opacity: 0.94, scale: 1 }}
+            transition={{ duration: 0.6, ease: "easeIn" }}
           />
         )}
       </AnimatePresence>
 
-      {/* Pokédex navigation flash — red */}
+      {/* Chapter content */}
       <AnimatePresence>
-        {navigatingToPokedex && (
-          <motion.div
-            key="pokedex-flash"
-            className="fixed inset-0 z-50 pointer-events-none"
-            style={{ background: POKEDEX_RED }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.82, 0] }}
-            transition={{ duration: 0.7, times: [0, 0.2, 1], ease: "easeOut" }}
-          />
+        {open && (
+          <motion.aside
+            ref={panelRef}
+            tabIndex={-1}
+            aria-label={`Chapter ${idx + 1}: ${chapter.title}`}
+            className="life-panel"
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 16 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="life-scroll">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={chapter.id}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              >
+                <p className="life-kicker">
+                  {String(idx + 1).padStart(2, "0")} / {String(CHAPTERS.length).padStart(2, "0")} · {chapter.period}
+                </p>
+                <h2 className="life-title">{chapter.title}</h2>
+                <p className="life-blurb">{chapter.blurb}</p>
+
+                <ul className="life-items">
+                  {chapter.items.map((item, i) => (
+                    <motion.li
+                      key={item.title}
+                      className="life-card"
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.45, delay: 0.12 + i * 0.07, ease: "easeOut" }}
+                    >
+                      <div className="life-card-head">
+                        <h3>{item.title}</h3>
+                        {item.meta && <span>{item.meta}</span>}
+                      </div>
+                      <p>{item.text}</p>
+                      <ItemLink item={item} />
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
+            </AnimatePresence>
+            </div>
+          </motion.aside>
         )}
       </AnimatePresence>
 
-      {/* Beats navigation flash — phosphor green, capped low for photosensitivity */}
+      {/* Chapter bar */}
       <AnimatePresence>
-        {navigatingToBeats && (
+        {open && (
+          <motion.nav
+            aria-label="Chapters"
+            className="life-nav"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            {CHAPTERS.map((c, i) => (
+              <button key={c.id} type="button" onClick={() => goTo(i)} aria-current={i === idx ? "true" : undefined} className="life-nav-btn">
+                {c.label}
+              </button>
+            ))}
+          </motion.nav>
+        )}
+      </AnimatePresence>
+
+      {/* Other pages, shown while the orb is alone */}
+      <AnimatePresence>
+        {!open && (
+          <motion.nav
+            aria-label="Pokédex"
+            className="life-links"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
+            <Link href="/pokedex" className="dex-btn" onMouseEnter={playHoverBlip} aria-label={`Pokédex, ${seenCount} of ${DEX_TOTAL} entries seen`}>
+              <span className="dex-ball" aria-hidden="true" />
+              <span className="dex-body">
+                <span className="dex-name">POKéDEX</span>
+                <span className="dex-lcd" aria-hidden="true">
+                  <span>SEEN {String(seenCount).padStart(2, "0")}/{DEX_TOTAL}</span>
+                  <span>UPD {DEX_UPDATED}</span>
+                </span>
+              </span>
+              <span className="dex-arrow" aria-hidden="true">▶</span>
+            </Link>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+
+      {/* Other pages along the top, while the orb is alone */}
+      <AnimatePresence>
+        {!open && (
+          <motion.nav
+            aria-label="Other pages"
+            className="life-links life-links-top"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
+            <Link href="/contact" className="nav-btn" onMouseEnter={playHoverBlip}>
+              <span className="nav-icon" aria-hidden="true">✉</span>
+              <span className="nav-body">
+                <span className="nav-name">CONTACT</span>
+                <span className="nav-sub" aria-hidden="true">SAY HELLO</span>
+              </span>
+              <span className="dex-arrow" aria-hidden="true">▶</span>
+            </Link>
+            <div className="life-links-row">
+              {ELSEWHERE_LINKS.map((l) => (
+                <a key={l.href} href={l.href} className="life-pill life-pill-out">
+                  {l.label}
+                  <ArrowUpRight size={11} aria-hidden="true" />
+                </a>
+              ))}
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+
+      {/* Edge devices from the classic home: Beats and the photo portfolio */}
+      <PocketOperator onLaunch={openBeats} disabled={beats || !!leaving} />
+      <PolaroidStack href="https://braunf25.myportfolio.com" onLaunch={shutter} />
+      <AnimatePresence>
+        {beats && (
           <motion.div
             key="beats-flash"
-            className="fixed inset-0 z-50 pointer-events-none"
-            style={{ background: PO_GREEN }}
+            aria-hidden="true"
+            className="life-flash"
+            style={{ background: "#8fd94a" }}
             initial={{ opacity: 0 }}
-            animate={{ opacity: reducedMotion ? [0, 0.25, 0] : [0, 0.4, 0] }}
+            animate={{ opacity: [0, 0.4, 0] }}
             transition={{ duration: 0.65, times: [0, 0.25, 1], ease: "easeOut" }}
           />
         )}
-      </AnimatePresence>
-
-      {/* Camera flash — capped low for photosensitivity, doesn't navigate */}
-      <AnimatePresence>
         {photoFlash && (
           <motion.div
             key="photo-flash"
-            className="fixed inset-0 z-50 pointer-events-none"
+            aria-hidden="true"
+            className="life-flash"
             style={{ background: "#fff" }}
             initial={{ opacity: 0 }}
-            animate={{ opacity: reducedMotion ? [0, 0.2, 0] : [0, 0.85, 0] }}
+            animate={{ opacity: [0, 0.6, 0] }}
             transition={{ duration: 0.26, times: [0, 0.2, 1], ease: "easeOut" }}
           />
         )}
       </AnimatePresence>
 
-      <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-4 md:py-6 gap-3 md:gap-4">
-        <h1 className="sr-only">Florian Braun: engineer, researcher and co-founder</h1>
+      {/* Film grain: also hides any gradient banding */}
+      <div aria-hidden="true" className="life-grain pointer-events-none absolute inset-0" style={{ backgroundImage: GRAIN }} />
 
-        {/* Overworld strip */}
-        <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-4xl"
-        >
-          <OverworldStrip />
-        </motion.div>
+      {/* Quiet chrome */}
+      {open && (
+        <button type="button" onClick={close} className="life-chrome life-close" aria-label="Close chapters (Escape)">
+          <X size={14} aria-hidden="true" /> Close
+        </button>
+      )}
+      {!open && <p className="life-chrome life-hint">Click the orb</p>}
 
-        {/* Professor dialog header */}
-        <FadeContent blur duration={650} initialOpacity={0} className="w-full max-w-4xl">
-          <DialogBox showCursor>
-            <p
-              style={{
-                fontSize: "10px",
-                fontFamily: "var(--font-inter), system-ui, sans-serif",
-                fontWeight: 600,
-                color: "rgba(28,28,28,0.5)",
-                marginBottom: "3px",
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-              }}
-            >
-              Prof. Braun
-            </p>
-            <p
-              style={{
-                fontSize: "13px",
-                color: "rgba(28,28,28,0.88)",
-                lineHeight: "1.6",
-                fontFamily: "var(--font-inter), system-ui, sans-serif",
-                whiteSpace: undefined,
-              }}
-            >
-              <TypewriterText
-                segments={[
-                  { text: "These three are no ordinary Pokémon — each one rare in its own right. " },
-                  { text: "Which will you choose?", style: { color: EMERALD_INK, fontWeight: 600 } },
-                ]}
-                startDelay={300}
-              />
-            </p>
-          </DialogBox>
-        </FadeContent>
+      <style>{`
+        .life-aurora { position:absolute; width:70vmax; height:70vmax; border-radius:50%; pointer-events:none; will-change:transform; opacity:0.3;
+          -webkit-mask-image: radial-gradient(closest-side, #000, transparent); mask-image: radial-gradient(closest-side, #000, transparent);
+          transition: background-color 1.6s ease; }
+        .life-aurora-a { left:-18vmax; top:-22vmax; background-color: var(--c1); animation: life-drift-a 38s ease-in-out infinite alternate; }
+        .life-aurora-b { right:-24vmax; bottom:-30vmax; background-color: var(--c2); opacity:0.26; animation: life-drift-b 46s ease-in-out infinite alternate; }
+        .life-aurora-c { left:30vw; bottom:-38vmax; width:60vmax; height:60vmax; background-color: var(--c3); opacity:0.15; animation: life-drift-a 52s ease-in-out infinite alternate-reverse; }
+        @keyframes life-drift-a { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(9vmax,6vmax,0) scale(1.12); } }
+        @keyframes life-drift-b { from { transform: translate3d(0,0,0) scale(1.05); } to { transform: translate3d(-8vmax,-7vmax,0) scale(0.95); } }
 
-        {/* Card grid */}
-        <div className="flex flex-col md:flex-row gap-3 md:gap-4 w-full max-w-4xl">
-          {cards.map((card, i) => {
-            const isSelected = selectedId === card.id;
-            const isOther = (selectedId !== null && !isSelected) || navigatingToPokedex;
-            const isHovered = hoveredId === card.id && selectedId === null && !navigatingToPokedex;
+        .life-grain { opacity:0.085; mix-blend-mode: overlay; }
 
-            return (
-              <motion.div
-                key={card.id}
-                custom={i}
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                className="flex-1"
-                style={{ position: "relative" }}
-              >
-                <motion.div
-                  ref={(el) => {
-                    cardRefs.current[card.id] = el;
-                  }}
-                  role="button"
-                  tabIndex={card.available ? 0 : -1}
-                  aria-label={`Choose ${card.title}`}
-                  aria-disabled={!card.available}
-                  onHoverStart={() => {
-                    if (!card.available) return;
-                    setHoveredId(card.id);
-                    if (musicEnabled) playHoverBlip();
-                  }}
-                  onHoverEnd={() => setHoveredId(null)}
-                  onFocus={() => card.available && setHoveredId(card.id)}
-                  onBlur={() => setHoveredId(null)}
-                  onKeyDown={(e) => handleCardKeyDown(e, card, i)}
-                  onClick={() => handleSelect(card)}
-                  animate={{
-                    scale: isSelected ? 1.04 : isOther ? 0.93 : isHovered ? 1.025 : 1,
-                    opacity: isOther ? 0.2 : 1,
-                    y: isHovered ? -10 : 0,
-                  }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
-                  style={{
-                    cursor: card.available ? "pointer" : "not-allowed",
-                    height: "100%",
-                    position: "relative",
-                    outline: "none",
-                  }}
-                >
-                  <CornerBrackets color={card.accentColor} visible={(isHovered || isSelected) && card.available} />
-                  <SpotlightCard
-                    spotlightColor={card.available ? card.spotlightColor : "rgba(80, 80, 80, 0.08)"}
-                    className="flex flex-col h-full"
-                    style={{
-                      minHeight: "clamp(260px, 32vw, 320px)",
-                      padding: "19px",
-                      borderRadius: "10px",
-                      border: `2px solid ${
-                        isSelected
-                          ? card.accentColor
-                          : isHovered
-                          ? card.accentColor + "80"
-                          : EMERALD_INK
-                      }`,
-                      boxShadow: isSelected
-                        ? `${EMERALD_BOX_INSET}, 0 0 50px ${card.accentColor}50, 0 0 90px ${card.accentColor}20`
-                        : isHovered
-                        ? `${EMERALD_BOX_INSET}, 0 0 28px ${card.accentColor}30`
-                        : EMERALD_BOX_INSET,
-                      transition: "border-color 0.3s ease, box-shadow 0.3s ease",
-                      background: card.available
-                        ? EMERALD_BOX_BG
-                        : "rgba(120,116,96,0.35)",
-                    }}
-                  >
-                    {/* Top accent bar */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: "3px",
-                        background: card.available ? card.accentColor : "#333",
-                        opacity: isHovered || isSelected ? 1 : 0.6,
-                        transition: "opacity 0.3s ease",
-                      }}
-                    />
+        .life-orb { transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1); pointer-events:none; }
+        .life-orb-hit { position:absolute; left:50%; top:50%; width:54%; height:54%; transform: translate(-50%,-50%); border-radius:50%; background:transparent; border:0; cursor:pointer; pointer-events:auto; -webkit-tap-highlight-color: transparent; }
+        .life-orb-hit:focus-visible { outline:2px solid rgba(199,210,254,0.8); outline-offset:8px; }
+        .life-stage[data-open="true"] .life-orb { transform: translate(-21vw, 0) scale(0.62); }
 
-                    {/* Corner glow */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "-30px",
-                        left: "-30px",
-                        width: "140px",
-                        height: "140px",
-                        borderRadius: "50%",
-                        background: card.accentColor,
-                        opacity: isHovered || isSelected ? 0.07 : 0.025,
-                        filter: "blur(40px)",
-                        transition: "opacity 0.4s ease",
-                        pointerEvents: "none",
-                      }}
-                    />
+        .life-chrome { position:absolute; z-index:6; font-family: var(--font-inter), system-ui, sans-serif; text-transform:uppercase; letter-spacing:0.24em; color: rgba(199,210,254,0.55); text-decoration:none; font-size:11px; background:none; border:0; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition: color .2s ease; }
+        .life-chrome:hover, .life-chrome:focus-visible { color: rgba(238,242,255,0.95); }
+        .life-chrome:focus-visible { outline:2px solid #a5b4fc; outline-offset:6px; border-radius:6px; }
+        .life-close { top:22px; right:24px; }
+        .life-hint { bottom:132px; left:50%; transform:translateX(-50%); font-size:10px; letter-spacing:0.32em; cursor:default; pointer-events:none; opacity:0; animation: life-hint 3.6s ease-in-out 1.4s infinite; }
+        @keyframes life-hint { 0%,100% { opacity:0.15; } 50% { opacity:0.85; } }
 
-                    {/* Type emblem */}
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        marginTop: "4px",
-                        marginBottom: "22px",
-                        filter: card.available ? "none" : "grayscale(1)",
-                        opacity: card.available ? 1 : 0.4,
-                      }}
-                    >
-                      <CollectorCard
-                        src={card.cardImage}
-                        alt={card.cardAlt}
-                        hovered={isHovered}
-                        selected={isSelected}
-                        color={card.accentColor}
-                      />
-                    </div>
+        .life-panel { position:absolute; z-index:4; right:max(4vw, 24px); top:0; bottom:0; width:min(540px, 42vw); display:flex; flex-direction:column; justify-content:center; pointer-events:none; font-family: var(--font-inter), system-ui, sans-serif; color:#e0e7ff; outline:none; }
+        .life-scroll { max-height:76vh; overflow-y:auto; padding:4px 6px 4px 2px; pointer-events:auto; scrollbar-width:thin; scrollbar-color: rgba(165,180,252,0.3) transparent; }
+        .life-kicker { font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color: rgba(199,210,254,0.6); margin-bottom:10px; }
+        .life-title { font-size:clamp(30px, 3.6vw, 50px); font-weight:600; letter-spacing:-0.02em; line-height:1.05; color:#f5f7ff; margin-bottom:12px; }
+        .life-blurb { font-size:15px; line-height:1.6; color: rgba(224,231,255,0.68); margin-bottom:22px; max-width:46ch; }
+        .life-items { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+        .life-card { padding:15px 18px 14px; border-radius:16px; border:1px solid rgba(199,210,254,0.14); background: rgba(255,255,255,0.045); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: border-color .25s ease, background .25s ease; }
+        .life-card:hover { border-color: rgba(199,210,254,0.3); background: rgba(255,255,255,0.07); }
+        .life-card-head { display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:6px; flex-wrap:wrap; }
+        .life-card h3 { font-size:15px; font-weight:600; color:#f1f4ff; }
+        .life-card-head span { font-size:11px; letter-spacing:0.08em; color: rgba(165,180,252,0.75); white-space:nowrap; }
+        .life-card p { font-size:13.5px; line-height:1.6; color: rgba(224,231,255,0.7); }
+        .life-link { display:inline-flex; align-items:center; gap:4px; margin-top:10px; font-size:12px; letter-spacing:0.04em; color:#c7d2fe; text-decoration:none; border-bottom:1px solid rgba(199,210,254,0.3); padding-bottom:1px; transition: color .2s ease, border-color .2s ease; }
+        .life-link:hover, .life-link:focus-visible { color:#fff; border-color:#fff; outline:none; }
 
-                    {/* Title */}
-                    <h2 className="text-xl md:text-2xl font-bold mb-1">
-                      <GradientText
-                        colors={
-                          card.available
-                            ? card.gradientColors
-                            : ["#8a8a80", "#6f6f66", "#8a8a80"]
-                        }
-                        animationSpeed={5}
-                      >
-                        {card.title}
-                      </GradientText>
-                    </h2>
+        .life-links { position:absolute; z-index:5; left:0; right:0; bottom:20px; display:flex; flex-direction:column; align-items:center; gap:8px; padding:0 16px; }
+        .life-links-top { bottom:auto; top:16px; }
+        .life-links-row { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; }
+        .life-pill { display:inline-flex; align-items:center; gap:4px; font-family: var(--font-inter), system-ui, sans-serif; font-size:11.5px; letter-spacing:0.06em; padding:8px 14px; border-radius:999px; border:1px solid rgba(199,210,254,0.18); background: rgba(8,12,28,0.5); color: rgba(224,231,255,0.8); text-decoration:none; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: color .25s ease, border-color .25s ease, background .25s ease, transform .25s ease; }
+        .life-pill-out { padding:6px 12px; font-size:10.5px; color: rgba(210,220,255,0.78); border-color: rgba(199,210,254,0.18); background: rgba(8,12,28,0.5); }
+        .life-pill:hover { color:#fff; border-color: rgba(199,210,254,0.5); background: rgba(40,50,100,0.45); transform: translateY(-1px); }
+        .life-pill:focus-visible { outline:2px solid #a5b4fc; outline-offset:3px; }
+        .life-pill-gba { font-family: var(--font-pixel), monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; padding:9px 12px 8px; border-radius:6px; border:3px solid #1c1c1c; background: linear-gradient(180deg,#f7f4e3,#eae5c8); color:#1c1c1c; box-shadow: inset 0 0 0 2px rgba(46,134,171,0.19), 0 4px 14px rgba(0,0,0,0.4); backdrop-filter:none; }
+        .life-pill-gba::before { content:"▶"; font-size:8px; margin-right:6px; color:#cc0000; opacity:0; width:0; transition: opacity .15s ease, width .15s ease; overflow:hidden; }
+        .life-pill-gba:hover, .life-pill-gba:focus-visible { color:#1c1c1c; background: linear-gradient(180deg,#fffdf0,#f1ecd0); border-color:#1c1c1c; outline:none; }
+        .life-pill-gba:hover::before, .life-pill-gba:focus-visible::before { opacity:1; width:10px; }
 
-                    {/* Subtitle + type badge */}
-                    <div className="flex items-center gap-2 mb-4" style={{ flexWrap: "wrap" }}>
-                      <p
-                        className="text-[10px] font-mono tracking-[0.2em] uppercase"
-                        style={{ color: "rgba(28,28,28,0.55)" }}
-                      >
-                        {card.subtitle}
-                      </p>
-                      <TypeBadge
-                        type={card.pokemonType}
-                        color={card.available ? card.typeColor : "#8a8a80"}
-                      />
-                    </div>
+        .nav-btn { display:flex; align-items:center; gap:10px; padding:7px 12px 7px 9px; border-radius:9px; border:3px solid #1c1c1c; text-decoration:none; color:#fff; font-family: var(--font-pixel), monospace; background: linear-gradient(180deg,#34c9a8 0%,#14a58a 50%,#0d7f6b 100%); box-shadow: inset 0 3px 0 rgba(255,255,255,0.3), inset 0 -3px 0 rgba(0,0,0,0.25), 0 0 0 2px rgba(255,255,255,0.1), 0 6px 20px rgba(20,165,138,0.35), 0 5px 14px rgba(0,0,0,0.45); transition: transform .2s ease, box-shadow .2s ease; -webkit-tap-highlight-color: transparent; }
+        .nav-btn:hover, .nav-btn:focus-visible { transform: translateY(-2px); outline:none; box-shadow: inset 0 3px 0 rgba(255,255,255,0.36), inset 0 -3px 0 rgba(0,0,0,0.25), 0 0 0 2px rgba(255,255,255,0.35), 0 10px 28px rgba(20,165,138,0.55), 0 6px 16px rgba(0,0,0,0.5); }
+        .nav-btn:focus-visible { outline:2px solid #fff; outline-offset:4px; }
+        .nav-icon { flex:none; display:grid; place-items:center; width:26px; height:26px; border:3px solid #1c1c1c; border-radius:5px; background:#f7f4e3; color:#0d7f6b; font-size:14px; line-height:1; font-family: system-ui, sans-serif; }
+        .nav-body { display:flex; flex-direction:column; gap:4px; }
+        .nav-name { font-size:11px; letter-spacing:0.1em; text-shadow:2px 2px 0 #09584a; }
+        .nav-sub { font-size:7px; letter-spacing:0.12em; color:#d6fff4; opacity:0.85; }
+        .dex-btn { position:relative; display:flex; align-items:center; gap:12px; padding:9px 14px 9px 12px; min-width:min(330px, 88vw); border-radius:10px; border:3px solid #1c1c1c; text-decoration:none; color:#fff; font-family: var(--font-pixel), monospace; background: linear-gradient(180deg,#e8222a 0%,#cc0000 48%,#a80000 100%); box-shadow: inset 0 3px 0 rgba(255,255,255,0.28), inset 0 -4px 0 rgba(0,0,0,0.25), 0 0 0 2px rgba(255,255,255,0.12), 0 8px 26px rgba(204,0,0,0.38), 0 6px 18px rgba(0,0,0,0.5); transition: transform .2s ease, box-shadow .2s ease; -webkit-tap-highlight-color: transparent; animation: dex-pulse 3.2s ease-in-out infinite; }
+        .dex-btn:hover, .dex-btn:focus-visible { transform: translateY(-3px); outline:none; box-shadow: inset 0 3px 0 rgba(255,255,255,0.34), inset 0 -4px 0 rgba(0,0,0,0.25), 0 0 0 2px rgba(255,255,255,0.35), 0 12px 34px rgba(204,0,0,0.6), 0 8px 20px rgba(0,0,0,0.55); }
+        .dex-btn:focus-visible { outline:2px solid #fff; outline-offset:4px; }
+        .dex-ball { flex:none; width:30px; height:30px; border-radius:50%; border:3px solid #1c1c1c; background: linear-gradient(180deg,#fff 0 50%,#2e86ab 50% 100%); position:relative; box-shadow: 0 0 10px rgba(120,220,255,0.6); }
+        .dex-ball::after { content:""; position:absolute; left:50%; top:50%; width:9px; height:9px; transform:translate(-50%,-50%); border-radius:50%; background:#fff; border:2px solid #1c1c1c; }
+        .dex-body { display:flex; flex-direction:column; gap:6px; flex:1; min-width:0; }
+        .dex-name { font-size:13px; letter-spacing:0.1em; text-shadow: 2px 2px 0 #7a0000; }
+        .dex-lcd { display:flex; justify-content:space-between; gap:12px; padding:5px 7px 4px; border:2px solid #1c1c1c; border-radius:3px; background:#a8c880; color:#1f3a14; font-size:7px; letter-spacing:0.06em; line-height:1.3; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); white-space:nowrap; }
+        .dex-arrow { flex:none; font-size:12px; text-shadow:2px 2px 0 #7a0000; animation: dex-blink 1s steps(2, jump-none) infinite; }
+        @keyframes dex-blink { 0%,49% { opacity:1; } 50%,100% { opacity:0.2; } }
+        @keyframes dex-pulse { 0%,100% { filter:none; } 50% { filter: drop-shadow(0 0 10px rgba(255,60,60,0.45)); } }
+        @media (prefers-reduced-motion: reduce) { .dex-btn, .dex-arrow { animation:none; } }
 
-                    {/* Accent line */}
-                    <div
-                      style={{
-                        width: isHovered || isSelected ? "48px" : "24px",
-                        height: "2px",
-                        background: card.available ? card.accentColor : "#999",
-                        marginBottom: "14px",
-                        transition: "width 0.4s ease",
-                        opacity: card.available ? 1 : 0.4,
-                      }}
-                    />
+        .life-nav { position:absolute; z-index:5; left:0; right:0; bottom:22px; display:flex; justify-content:center; gap:6px; padding:0 16px; overflow-x:auto; scrollbar-width:none; }
+        .life-nav::-webkit-scrollbar { display:none; }
+        .life-nav-btn { flex:none; font-family: var(--font-inter), system-ui, sans-serif; font-size:11.5px; letter-spacing:0.06em; padding:8px 14px; border-radius:999px; border:1px solid rgba(199,210,254,0.16); background: rgba(8,12,28,0.5); color: rgba(199,210,254,0.62); cursor:pointer; backdrop-filter: blur(8px); transition: color .25s ease, border-color .25s ease, background .25s ease; }
+        .life-nav-btn:hover { color:#fff; border-color: rgba(199,210,254,0.4); }
+        .life-nav-btn[aria-current="true"] { color:#0b0e22; background: rgba(224,231,255,0.92); border-color: transparent; }
+        .life-nav-btn:focus-visible { outline:2px solid #a5b4fc; outline-offset:3px; }
 
-                    {/* Description */}
-                    <p
-                      className="text-sm leading-relaxed flex-1"
-                      style={{
-                        color: card.available
-                          ? "rgba(28,28,28,0.72)"
-                          : "rgba(28,28,28,0.3)",
-                      }}
-                    >
-                      {card.description}
-                    </p>
+        .life-guide { position:absolute; z-index:3; top:0; bottom:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; width:clamp(180px, 19vw, 300px); text-decoration:none; color:#e0e7ff; font-family: var(--font-inter), system-ui, sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom:36px; }
+        .life-guide-left { left:max(5vw, 16px); }
+        .life-guide-right { right:max(5vw, 16px); }
+        .life-guide:focus-visible { outline:2px solid #a5b4fc; outline-offset:8px; border-radius:24px; }
+        .life-guide-aura { position:absolute; left:50%; top:44%; width:120%; aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; background: radial-gradient(closest-side, var(--aura), transparent 72%); opacity:0.2; filter: blur(8px); transition: opacity .6s ease, transform .6s ease; pointer-events:none; }
+        .life-guide[data-active="true"] .life-guide-aura { opacity:0.5; transform:translate(-50%,-50%) scale(1.12); }
 
-                    {/* CTA */}
-                    <div className="mt-5">
-                      {card.available ? (
-                        <span
-                          style={{
-                            fontSize: "11px",
-                            fontFamily: "var(--font-pixel), monospace",
-                            color: card.accentColor,
-                            opacity: isHovered ? 1 : 0.8,
-                            transition: "opacity 0.3s ease",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
-                          ▶ CHOOSE
-                        </span>
-                      ) : (
-                        <span
-                          style={{
-                            fontSize: "8px",
-                            fontFamily: "var(--font-pixel), monospace",
-                            color: "rgba(28,28,28,0.35)",
-                            background: "rgba(28,28,28,0.05)",
-                            border: "1px solid rgba(28,28,28,0.15)",
-                            padding: "4px 10px 3px",
-                            borderRadius: "4px",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
-                          COMING SOON
-                        </span>
-                      )}
-                    </div>
-                  </SpotlightCard>
-                </motion.div>
-              </motion.div>
-            );
-          })}
-        </div>
+        .life-gcard-scene { position:relative; display:block; width:clamp(148px, 14.5vw, 236px); aspect-ratio: 868 / 1212; perspective:900px; animation: life-float 9s ease-in-out infinite; }
+        .life-gcard { position:absolute; inset:0; display:block; overflow:hidden; border-radius: 5.4% / 3.9%; background:#0b0e22; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--sc, 1)); transition: transform .7s cubic-bezier(0.22,1,0.36,1), box-shadow .5s ease; box-shadow: 0 26px 42px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.14), 0 0 28px color-mix(in srgb, var(--aura) 38%, transparent); will-change: transform; }
+        .life-guide[data-active="true"] .life-gcard { --sc:1.07; transition: transform .14s ease-out, box-shadow .5s ease; box-shadow: 0 38px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.3), 0 0 56px color-mix(in srgb, var(--aura) 70%, transparent); }
+        .life-gcard-img { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; user-select:none; }
+        .life-gcard-holo { position:absolute; inset:0; border-radius:inherit; pointer-events:none; mix-blend-mode: color-dodge; opacity:0.26; background: linear-gradient(115deg, transparent 16%, rgba(255,60,150,0.55) 29%, rgba(255,210,60,0.55) 38%, rgba(60,255,180,0.55) 47%, rgba(60,150,255,0.55) 56%, rgba(170,70,255,0.5) 65%, transparent 78%); background-size: 260% 260%; background-position: var(--mx, 30%) var(--my, 30%); animation: life-foil 8s ease-in-out infinite alternate; transition: opacity .4s ease; }
+        .life-guide[data-active="true"] .life-gcard-holo { opacity:0.6; animation:none; }
+        .life-gcard-glare { position:absolute; inset:0; border-radius:inherit; pointer-events:none; opacity:0; mix-blend-mode: soft-light; background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.95), rgba(255,255,255,0) 52%); transition: opacity .35s ease; }
+        .life-guide[data-active="true"] .life-gcard-glare { opacity:0.9; }
+        @keyframes life-foil { from { background-position: 8% 12%; } to { background-position: 92% 88%; } }
+        @keyframes life-float { 0%,100% { transform: translateY(0) rotateY(-7deg) rotateZ(-1deg); } 50% { transform: translateY(-10px) rotateY(7deg) rotateZ(1deg); } }
+        .life-guide-label { position:relative; display:flex; flex-direction:column; align-items:center; gap:3px; text-align:center; text-shadow: 0 2px 14px rgba(5,6,15,0.9); }
+        .life-guide-title { font-size:clamp(17px, 1.45vw, 23px); font-weight:650; letter-spacing:-0.01em; color:#f5f7ff; }
+        .life-guide-cap { font-size:12px; letter-spacing:0.04em; color: rgba(199,210,254,0.62); }
+        .life-guide-go { display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:10.5px; letter-spacing:0.26em; text-transform:uppercase; color:#e0e7ff; opacity:0.35; transform:translateY(2px); transition: opacity .35s ease, transform .35s ease; }
+        .life-guide[data-active="true"] .life-guide-go { opacity:1; transform:none; }
+        @keyframes life-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+        .life-flash { position:fixed; inset:0; z-index:40; pointer-events:none; }
 
-        {/* Start menu — every other destination, GBA pause-menu style */}
-        <FadeContent blur duration={600} delay={1100} initialOpacity={0} className="w-full max-w-4xl">
-          <div
-            style={{
-              position: "relative",
-              background: EMERALD_BOX_BG,
-              border: EMERALD_BOX_BORDER,
-              borderRadius: "8px",
-              padding: "12px 14px 14px",
-              boxShadow: EMERALD_BOX_INSET,
-            }}
-          >
-            {/* Panel label */}
-            <div className="flex items-center gap-2 px-3 pt-1.5 pb-2">
-              <span
-                className="pulse-dot"
-                style={{
-                  width: "6px",
-                  height: "6px",
-                  borderRadius: "50%",
-                  background: POKEDEX_RED,
-                  boxShadow: `0 0 8px ${POKEDEX_RED}`,
-                }}
-              />
-              <p
-                style={{
-                  fontSize: "9px",
-                  fontFamily: "var(--font-pixel), monospace",
-                  color: "rgba(28,28,28,0.5)",
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase",
-                }}
-              >
-                Menu
-              </p>
-            </div>
+        @media (max-width: 899px) {
+          .life-stage[data-open="false"] .life-orb { transform: translateY(-9vh); }
+          .life-guide { top:auto; bottom:100px; width:40vw; max-width:190px; gap:12px; padding-bottom:0; justify-content:flex-end; }
+          .life-gcard-scene { width:min(30vw, 138px); }
+          .life-links { gap:6px; bottom:16px; }
+          .life-links-top { bottom:auto; top:52px; }
+          .life-links-row { gap:5px; }
+          .life-pill { padding:7px 12px; font-size:11px; }
+          .life-pill-out { padding:5px 9px; font-size:10px; }
+          .life-guide-left { left:6vw; }
+          .life-guide-right { right:6vw; }
+          .life-guide-cap, .life-guide-go { display:none; }
+          .life-guide-title { font-size:15px; }
+          .life-hint { bottom:auto; top:min(60vh, 476px); }
+        }
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-              <StartMenuRow
-                onClick={handlePokedex}
-                icon={<BookOpen size={14} />}
-                label="POKEDEX + NOW"
-                color={POKEDEX_RED}
-                soundEnabled={musicEnabled}
-                badge={seenCount > 0 ? `${seenCount}/${achievements.length}` : undefined}
-              />
-              <StartMenuRow
-                href="https://nihongo.braunf.com"
-                external
-                icon={<span style={{ fontSize: "13px" }}>日</span>}
-                label="NIHONGO"
-                color="#f472b6"
-                badge="WK LV.3"
-                soundEnabled={musicEnabled}
-              />
-              <StartMenuRow
-                href="https://go.braunf.com"
-                external
-                icon={<span style={{ fontSize: "13px" }}>●</span>}
-                label="GO"
-                color="#78716c"
-                badge="25 KYU · 600 ELO"
-                soundEnabled={musicEnabled}
-              />
-            </div>
+        @media (max-width: 899px) {
+          .life-stage[data-open="true"] .life-orb { transform: translate(0, -29vh) scale(0.44); }
+          .life-panel { left:20px; right:20px; width:auto; top:34vh; bottom:70px; justify-content:flex-start; }
+          .life-scroll { max-height:100%; }
+          .life-title { font-size:30px; }
+          .life-nav { justify-content:flex-start; }
+        }
 
-            <div style={{ height: "1px", background: "rgba(28,28,28,0.15)", margin: "5px 12px" }} />
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1px" }}>
-              <StartMenuRow href="/contact" icon={<Mail size={14} />} label="CONTACT" color={EMERALD_INK} soundEnabled={musicEnabled} />
-              <StartMenuRow href="https://data.braunf.com" external icon={<BarChart3 size={14} />} label="DATACAMP" color="#f59e0b" soundEnabled={musicEnabled} />
-            </div>
-          </div>
-        </FadeContent>
-
-        {/* Bottom dialog */}
-        <FadeContent blur duration={600} delay={950} initialOpacity={0} className="w-full max-w-4xl">
-          <DialogBox showCursor={selectedId === null && !navigatingToPokedex && !navigatingToBeats}>
-            <AnimatePresence mode="wait">
-              {selectedId === null && !navigatingToPokedex && !navigatingToBeats ? (
-                <motion.p
-                  key="idle"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  style={{
-                    fontSize: "11px",
-                    fontFamily: "var(--font-pixel), monospace",
-                    color: "rgba(28,28,28,0.7)",
-                    letterSpacing: "0.05em",
-                    lineHeight: "1.8",
-                  }}
-                >
-                  <TypewriterText segments={[{ text: "Choose a Pokémon!" }]} speedMs={28} />
-                </motion.p>
-              ) : navigatingToPokedex ? (
-                <motion.p
-                  key="pokedex"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  style={{
-                    fontSize: "11px",
-                    fontFamily: "var(--font-pixel), monospace",
-                    letterSpacing: "0.05em",
-                    lineHeight: "1.8",
-                    color: POKEDEX_RED,
-                  }}
-                >
-                  <TypewriterText segments={[{ text: "Opening POKEDEX..." }]} speedMs={28} />
-                </motion.p>
-              ) : navigatingToBeats ? (
-                <motion.p
-                  key="beats"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  style={{
-                    fontSize: "11px",
-                    fontFamily: "var(--font-pixel), monospace",
-                    letterSpacing: "0.05em",
-                    lineHeight: "1.8",
-                    color: PO_GREEN,
-                  }}
-                >
-                  <TypewriterText segments={[{ text: "Powering on PO-33..." }]} speedMs={28} />
-                </motion.p>
-              ) : (
-                <motion.p
-                  key="chosen"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  style={{
-                    fontSize: "11px",
-                    fontFamily: "var(--font-pixel), monospace",
-                    letterSpacing: "0.05em",
-                    lineHeight: "1.8",
-                  }}
-                >
-                  <TypewriterText
-                    segments={[
-                      { text: "So, you want ", style: { color: "rgba(28,28,28,0.7)" } },
-                      { text: selectedCard?.title ?? "", style: { color: selectedCard?.accentColor ?? EMERALD_INK } },
-                      { text: "? This choice is yours!", style: { color: "rgba(28,28,28,0.7)" } },
-                    ]}
-                    speedMs={28}
-                  />
-                </motion.p>
-              )}
-            </AnimatePresence>
-          </DialogBox>
-        </FadeContent>
-
-        {/* Friend credit — not one of my own projects, kept visually separate */}
-        <FadeContent blur duration={600} delay={1250} initialOpacity={0}>
-          <a
-            href="https://delphi.tools/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "9px",
-              fontFamily: "var(--font-pixel), monospace",
-              letterSpacing: "0.06em",
-              color: "rgba(255,255,255,0.28)",
-              textDecoration: "none",
-              transition: "color 0.15s ease",
-            }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.6)")
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.28)")
-            }
-          >
-            delphi.tools ↗ — built by a fellow developer
-          </a>
-        </FadeContent>
-      </main>
-    </div>
+        @media (prefers-reduced-motion: reduce) {
+          .life-aurora, .life-hint, .life-gcard-scene, .life-gcard-holo { animation: none; }
+          .life-hint { opacity:0.7; }
+          .life-orb { transition-duration: 0.01ms; }
+        }
+      `}</style>
+    </main>
   );
 }

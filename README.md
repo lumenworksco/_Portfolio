@@ -5,14 +5,15 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss&logoColor=white)
 
-Personal hub for [braunf.com](https://braunf.com): a Pokémon-style start menu that links out to my projects, research, music and contact details, plus an interactive glass orb that opens chapters of my life.
+Personal hub for [braunf.com](https://braunf.com): a WebGL glass orb that opens chapters of my life, with links out to my projects, research, music, photos and contact details, plus a Pokémon-style Pokédex of achievements.
 
 ## Pages
 
 | Route | Description |
 | --- | --- |
-| `/` | Pokémon-style start menu hub with WebGL aurora background and links to projects |
-| `/agent` | A WebGL glass orb. Click it to browse seven chapters of my life (school years, studies, building, research, work, off duty, say hello). Not linked from the start menu yet and set to `noindex` |
+| `/` | A WebGL glass orb. Click it to browse seven chapters of my life (school years, studies, building, research, work, off duty, say hello). Two trading cards lead to the projects and research sites, a red Pokédex button and a Contact button sit at the edges, and two devices on the left edge open Beats (`/music`) and the photo portfolio |
+| `/classic` | The earlier home page, a Pokémon-style start menu with a WebGL aurora background. Kept for now, set to `noindex` |
+| `/agent` | Redirects to `/` (the orb used to live here) |
 | `/research` | Redirects to [research.braunf.com](https://research.braunf.com), where the papers and the Mabushi Lab engineering work now live together |
 | `/pokedex` | Pokémon start-menu themed Pokédex with two tabs: the searchable, filterable list of achievements (hackathons, awards, education, certifications) and **Now**, the current focus areas with live GitHub and Hugging Face activity (`/pokedex#now`) |
 | `/terminal` | Interactive terminal with commands |
@@ -57,7 +58,7 @@ npm run dev     # http://localhost:3000
 | `npm start` | Serve a production build (`npm run build` first) |
 | `npm run lint` | Run ESLint |
 
-## The orb (`/agent`)
+## The orb (`/`)
 
 `src/components/agent/Ball.tsx` renders a full-canvas GLSL fragment shader (`ballShader.ts`) with ogl: a glass sphere with domain-warped pastel flow, a thin-film rim and a glow. It drifts on its own, leans toward the cursor, swirls near it and pops on click, and falls back to a CSS gradient ball when WebGL2 is unavailable. Each chapter in `src/data/lifeChapters.ts` supplies a colour palette that the orb blends to, plus the cards shown beside it. Every statement there comes from content already published on the sites.
 

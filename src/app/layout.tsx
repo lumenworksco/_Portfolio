@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 
@@ -53,6 +53,12 @@ export const metadata: Metadata = {
     images: ["/og.png"],
   },
   robots: { index: true, follow: true },
+  // Send the full address (not just the origin) to the sites it links to, so their back button can return here.
+  referrer: "no-referrer-when-downgrade",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#070914",
 };
 
 export default function RootLayout({
