@@ -63,7 +63,7 @@ export const TOPICS: Topic[] = [
     id: "experience",
     keywords: ["experience", "work", "job", "career", "internship", "intern", "hire", "hiring", "employment", "role", "roles", "worked", "available", "looking", "opportunity", "opportunities"],
     answer:
-      "Right now he is Information Manager in the IT team at NEXT Leuven (since May 2026), one of Belgium's largest student entrepreneurship organisations, Co-Founder & CTO of CalmCampus (since January 2026), and, since October 2026, a research student in an NLP lab at the University of Tsukuba in Japan. Since October 2023 he has also been building his own apps as an independent developer. He is open to research collaborations and engineering opportunities, so internship conversations are welcome.",
+      "Right now he is Information Manager in the IT team at NEXT Leuven (since May 2026), one of Belgium's largest student entrepreneurship organisations, Co-Founder & CTO of CalmCampus (since February 2026), and, since October 2026, a research student in an NLP lab at the University of Tsukuba in Japan. Since October 2023 he has also been building his own apps as an independent developer. He is open to research collaborations and engineering opportunities, so internship conversations are welcome.",
     links: [{ label: "Get in touch", href: "/contact" }],
     followUps: ["Tell me about CalmCampus", "How can I contact him?", "What are his skills?"],
   },

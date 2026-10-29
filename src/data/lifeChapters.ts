@@ -136,7 +136,7 @@ export const CHAPTERS: Chapter[] = [
     items: [
       {
         title: "CalmCampus",
-        meta: "Co-Founder & CTO · Jan 2026 –",
+        meta: "Co-Founder & CTO · Feb 2026 –",
         text: "A privacy-first wellness companion for students: it notices when stress is building from on-device signals and a short daily check-in, then offers brief evidence-based exercises. All data stays on the phone. Started in the KU Leuven KICK Challenge; being rebuilt as a native SwiftUI iOS app.",
         href: "https://cc.braunf.com",
         linkLabel: "cc.braunf.com",

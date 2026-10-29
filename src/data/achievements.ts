@@ -61,7 +61,7 @@ export const achievements: Achievement[] = [
     id: "002",
     name: "CalmCampus",
     org: "Co-Founder & CTO",
-    period: "Jan 2026 – Present",
+    period: "Feb 2026 – Present",
     category: "founding",
     types: ["GRASS", "PSYCHIC"],
     icon: Leaf,
