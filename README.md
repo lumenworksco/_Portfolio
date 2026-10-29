@@ -5,19 +5,19 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss&logoColor=white)
 
-Personal hub for [braunf.com](https://braunf.com): a WebGL glass orb that opens chapters of my life, with links out to my projects, research, music, photos and contact details, plus a Pokémon-style Pokédex of achievements.
+Personal hub for [braunf.com](https://braunf.com): a WebGL glass orb that opens chapters of my life, with links out to my projects, research, music, photos and contact details, plus a Pokémon-style Pokédex of achievements, which also holds the doors to Beats and the photo portfolio.
 
 ## Pages
 
 | Route | Description |
 | --- | --- |
-| `/` | A WebGL glass orb. Click it to browse seven chapters of my life (school years, studies, building, research, work, off duty, say hello). Two trading cards lead to the projects and research sites, a red Pokédex button and a Contact button sit at the edges, and two devices on the left edge open Beats (`/music`) and the photo portfolio |
+| `/` | A WebGL glass orb. Click it to browse seven chapters of my life (school years, studies, building, research, work, off duty, say hello). Two trading cards lead to the projects and research sites, and a red Pokédex button and a Contact button sit at the edges. |
 | `/classic` | The earlier home page, a Pokémon-style start menu with a WebGL aurora background. Kept for now, set to `noindex` |
 | `/agent` | Redirects to `/` (the orb used to live here) |
 | `/research` | Redirects to [research.braunf.com](https://research.braunf.com), where the papers and the Mabushi Lab engineering work now live together |
-| `/pokedex` | Pokémon start-menu themed Pokédex with two tabs: the searchable, filterable list of achievements (hackathons, awards, education, certifications) and **Now**, the current focus areas with live GitHub and Hugging Face activity (`/pokedex#now`) |
+| `/pokedex` | Pokémon start-menu themed Pokédex with two tabs: the searchable, filterable list of achievements (hackathons, awards, education, certifications) and **Now**, the current focus areas with live GitHub and Hugging Face activity (`/pokedex#now`). Two devices on the left edge open Beats (`/music`) and the photo portfolio |
 | `/terminal` | Interactive terminal with commands |
-| `/music` | Loops made on a Teenage Engineering PO-33 K.O., with a player |
+| `/music` | Loops made on a Teenage Engineering PO-33 K.O.!, as a PO-33-style device: LCD, printed buttons and a 4x4 key bank that plays them |
 | `/now` | Redirects to `/pokedex#now` |
 | `/contact` | Email and project links |
 

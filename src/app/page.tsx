@@ -9,9 +9,7 @@ import Ball from "@/components/agent/Ball";
 import { CHAPTERS, DEFAULT_PALETTE, type LifeItem, type Palette } from "@/data/lifeChapters";
 import { achievements, POKEDEX_UPDATED_FALLBACK } from "@/data/achievements";
 import { useSeenAchievements } from "@/lib/useSeenAchievements";
-import { playHoverBlip, playPowerOn, playShutterClick } from "@/lib/uiSfx";
-import PocketOperator from "@/components/ui/PocketOperator";
-import PolaroidStack from "@/components/ui/PolaroidStack";
+import { playHoverBlip } from "@/lib/uiSfx";
 
 // The earlier chat interface lives in git history (a06be39) and in
 // src/lib/agentEngine.ts + src/data/agentKnowledge.ts.
@@ -112,8 +110,7 @@ function ItemLink({ item }: { item: LifeItem }) {
 export default function AgentPage() {
   const router = useRouter();
   const { seenCount } = useSeenAchievements();
-  const [beats, setBeats] = useState(false);
-  const [photoFlash, setPhotoFlash] = useState(false);
+
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [leaving, setLeaving] = useState<(typeof GUIDES)[number] | null>(null);
@@ -147,20 +144,6 @@ export default function AgentPage() {
     orbRef.current?.focus({ preventScroll: true });
   }, []);
 
-  // The sampler on the left edge opens Beats; the polaroids open the photo portfolio.
-  const openBeats = () => {
-    if (beats || leaving) return;
-    playPowerOn();
-    setBeats(true);
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.setTimeout(() => router.push("/music"), reduced ? 0 : 650);
-  };
-  const shutter = () => {
-    playShutterClick();
-    setPhotoFlash(true);
-    window.setTimeout(() => setPhotoFlash(false), 260);
-  };
-
   // Backtick easter egg: the terminal
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -177,8 +160,7 @@ export default function AgentPage() {
       if (!e.persisted) return;
       setLeaving(null);
       setHovered(null);
-      setBeats(false);
-      setPhotoFlash(false);
+
     };
     window.addEventListener("pageshow", onShow);
     return () => window.removeEventListener("pageshow", onShow);
@@ -422,34 +404,6 @@ export default function AgentPage() {
               ))}
             </div>
           </motion.nav>
-        )}
-      </AnimatePresence>
-
-      {/* Edge devices from the classic home: Beats and the photo portfolio */}
-      <PocketOperator onLaunch={openBeats} disabled={beats || !!leaving} />
-      <PolaroidStack href="https://braunf25.myportfolio.com" onLaunch={shutter} />
-      <AnimatePresence>
-        {beats && (
-          <motion.div
-            key="beats-flash"
-            aria-hidden="true"
-            className="life-flash"
-            style={{ background: "#8fd94a" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.4, 0] }}
-            transition={{ duration: 0.65, times: [0, 0.25, 1], ease: "easeOut" }}
-          />
-        )}
-        {photoFlash && (
-          <motion.div
-            key="photo-flash"
-            aria-hidden="true"
-            className="life-flash"
-            style={{ background: "#fff" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.6, 0] }}
-            transition={{ duration: 0.26, times: [0, 0.2, 1], ease: "easeOut" }}
-          />
         )}
       </AnimatePresence>
 

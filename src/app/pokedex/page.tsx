@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useSyncExternalStore } from 
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, X, Search, Check, BookOpen, Radio, Flame, Brain, Leaf, Github } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Aurora from "@/components/ui/Aurora";
 import { GitHubActivity } from "@/components/GitHubActivity";
 import { HuggingFaceActivity } from "@/components/HuggingFaceActivity";
@@ -28,8 +29,10 @@ import {
 import { useSeenAchievements } from "@/lib/useSeenAchievements";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { useMusicPref } from "@/lib/musicPref";
-import { playHoverBlip, playConfirmChime } from "@/lib/uiSfx";
+import { playHoverBlip, playConfirmChime, playPowerOn, playShutterClick } from "@/lib/uiSfx";
 import ChiptuneMusic from "@/components/ui/ChiptuneMusic";
+import PocketOperator from "@/components/ui/PocketOperator";
+import PolaroidStack from "@/components/ui/PolaroidStack";
 
 const PIXEL = "var(--font-pixel), monospace";
 const LCD_GREEN = "#8fd94a";
@@ -500,6 +503,9 @@ export default function PokedexPage() {
   const [filter, setFilter] = useState<Category | "all">("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Achievement | null>(null);
+  const router = useRouter();
+  const [beatsLaunching, setBeatsLaunching] = useState(false);
+  const [photoFlash, setPhotoFlash] = useState(false);
   const [musicOn, toggleMusic] = useMusicPref();
   const { seenIds, markSeen, seenCount } = useSeenAchievements();
 
@@ -530,6 +536,31 @@ export default function PokedexPage() {
   );
   const handleClose = useCallback(() => setSelected(null), []);
 
+  // The sampler on the left edge opens Beats; the polaroids open the photo portfolio.
+  const openBeats = useCallback(() => {
+    if (beatsLaunching) return;
+    playPowerOn();
+    setBeatsLaunching(true);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(() => router.push("/music"), reduced ? 0 : 650);
+  }, [beatsLaunching, router]);
+  const shutter = useCallback(() => {
+    playShutterClick();
+    setPhotoFlash(true);
+    window.setTimeout(() => setPhotoFlash(false), 260);
+  }, []);
+
+  // Back/forward cache can restore this page mid-launch; clear the flash state.
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return;
+      setBeatsLaunching(false);
+      setPhotoFlash(false);
+    };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
+
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden" style={{ background: "#060608" }}>
       {/* Aurora — the home page's tropical palette */}
@@ -554,6 +585,32 @@ export default function PokedexPage() {
       />
 
       <ChiptuneMusic enabled={musicOn} onToggle={toggleMusic} />
+      <PocketOperator onLaunch={openBeats} disabled={beatsLaunching} />
+      <PolaroidStack href="https://braunf25.myportfolio.com" onLaunch={shutter} />
+      <AnimatePresence>
+        {beatsLaunching && (
+          <motion.div
+            key="beats-flash"
+            aria-hidden="true"
+            className="fixed inset-0 z-50 pointer-events-none"
+            style={{ background: "#8fd94a" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.4, 0] }}
+            transition={{ duration: 0.65, times: [0, 0.25, 1], ease: "easeOut" }}
+          />
+        )}
+        {photoFlash && (
+          <motion.div
+            key="photo-flash"
+            aria-hidden="true"
+            className="fixed inset-0 z-50 pointer-events-none"
+            style={{ background: "#fff" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.6, 0] }}
+            transition={{ duration: 0.26, times: [0, 0.2, 1], ease: "easeOut" }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Back */}
       <Link
