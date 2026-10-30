@@ -12,7 +12,6 @@ Personal hub for [braunf.com](https://braunf.com): a WebGL glass orb that opens 
 | Route | Description |
 | --- | --- |
 | `/` | A WebGL glass orb. Click it to browse seven chapters of my life (school years, studies, building, research, work, off duty, say hello). Two trading cards lead to the projects and research sites, and a red Pokédex button and a Contact button sit at the edges. |
-| `/classic` | The earlier home page, a Pokémon-style start menu with a WebGL aurora background. Kept for now, set to `noindex` |
 | `/agent` | Redirects to `/` (the orb used to live here) |
 | `/research` | Redirects to [research.braunf.com](https://research.braunf.com), where the papers and the Mabushi Lab engineering work now live together |
 | `/pokedex` | Pokémon start-menu themed Pokédex with two tabs: the searchable, filterable list of achievements (hackathons, awards, education, certifications) and **Now**, the current focus areas with live GitHub and Hugging Face activity (`/pokedex#now`). Two devices on the left edge open Beats (`/music`) and the photo portfolio |
